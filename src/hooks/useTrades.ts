@@ -70,7 +70,7 @@ export function useCreateTrade() {
       const client = getAuthenticatedClient(token)
       const { data, error } = await client
         .from('trades')
-        .insert(newTrade)
+        .insert(newTrade as never)
         .select()
         .single()
 
@@ -127,7 +127,7 @@ export function useUpdateTrade() {
       const client = getAuthenticatedClient(token)
       const { data, error } = await client
         .from('trades')
-        .update(updates)
+        .update(updates as never)
         .eq('id', id)
         .select()
         .single()

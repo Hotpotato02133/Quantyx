@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #121212;
+    color: #f5f5f5;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Tabular numeric rendering — required for all financial figures */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Custom scrollbar for terminal aesthetic */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #141414;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #262626;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #404040;
+  }
+}
+
+@layer components {
+  /* Glassmorphic surface — used for Modals, Command Palette */
+  .glass {
+    @apply bg-elevated/75 backdrop-blur-md border border-border;
+  }
+
+  /* Hairline border utility */
+  .hairline {
+    border: 1px solid #262626;
+  }
+
+  /* Financial color classes */
+  .text-profit {
+    @apply text-profit;
+  }
+
+  .text-loss {
+    @apply text-loss;
+  }
+
+  .text-warning {
+    @apply text-warning;
+  }
+}

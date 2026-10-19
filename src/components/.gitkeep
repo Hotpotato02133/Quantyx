@@ -1,0 +1,6 @@
+// Components will be organized by domain:
+//
+// ui/          — Primitive UI atoms (Button, Badge, Input, Modal, Tooltip, etc.)
+// layout/      — App shell components (Sidebar, TopBar, CommandPalette, etc.)
+// trades/      — Trade-specific components (TradeRow, TradeForm, TradeStats, etc.)
+// charts/      — Analytics charts (EquityCurve, DrawdownChart, CalendarHeatmap, etc.)

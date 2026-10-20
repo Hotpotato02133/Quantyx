@@ -1,16 +1,6 @@
-import type { Trade } from '@/types'
+import type { Trade, TradingAccount } from '@/types'
 
-export interface TradingAccount {
-  id: string
-  name: string
-  broker: string
-  currency: string
-  initial_balance: number
-  current_balance: number
-  max_daily_drawdown_pct: number
-  is_archived: boolean
-  created_at: string
-}
+export type { TradingAccount }
 
 export const MOCK_ACCOUNTS: TradingAccount[] = [
   {
@@ -52,6 +42,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_001',
     user_id: 'user_mock_trader',
+    account_id: 'acc_apex_50k',
     symbol: 'NQ1!',
     asset_class: 'futures',
     direction: 'long',
@@ -74,6 +65,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_002',
     user_id: 'user_mock_trader',
+    account_id: 'acc_apex_50k',
     symbol: 'ES1!',
     asset_class: 'futures',
     direction: 'short',
@@ -96,6 +88,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_003',
     user_id: 'user_mock_trader',
+    account_id: 'acc_crypto_swing',
     symbol: 'BTCUSDT',
     asset_class: 'crypto',
     direction: 'long',
@@ -118,6 +111,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_004',
     user_id: 'user_mock_trader',
+    account_id: 'acc_personal_futures',
     symbol: 'NVDA',
     asset_class: 'equity',
     direction: 'long',
@@ -140,6 +134,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_005',
     user_id: 'user_mock_trader',
+    account_id: 'acc_personal_futures',
     symbol: 'EURUSD',
     asset_class: 'forex',
     direction: 'short',
@@ -162,6 +157,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_006',
     user_id: 'user_mock_trader',
+    account_id: 'acc_personal_futures',
     symbol: 'AAPL',
     asset_class: 'equity',
     direction: 'short',
@@ -184,6 +180,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_007',
     user_id: 'user_mock_trader',
+    account_id: 'acc_apex_50k',
     symbol: 'NQ1!',
     asset_class: 'futures',
     direction: 'long',
@@ -206,6 +203,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_008',
     user_id: 'user_mock_trader',
+    account_id: 'acc_crypto_swing',
     symbol: 'ETHUSDT',
     asset_class: 'crypto',
     direction: 'long',
@@ -228,6 +226,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_009',
     user_id: 'user_mock_trader',
+    account_id: 'acc_personal_futures',
     symbol: 'TSLA',
     asset_class: 'equity',
     direction: 'short',
@@ -250,6 +249,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_010',
     user_id: 'user_mock_trader',
+    account_id: 'acc_apex_50k',
     symbol: 'ES1!',
     asset_class: 'futures',
     direction: 'long',
@@ -272,6 +272,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_011',
     user_id: 'user_mock_trader',
+    account_id: 'acc_crypto_swing',
     symbol: 'BTCUSDT',
     asset_class: 'crypto',
     direction: 'short',
@@ -294,6 +295,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_012',
     user_id: 'user_mock_trader',
+    account_id: 'acc_apex_50k',
     symbol: 'NQ1!',
     asset_class: 'futures',
     direction: 'long',
@@ -316,6 +318,7 @@ export const MOCK_TRADES: Trade[] = [
   {
     id: 'tr_013',
     user_id: 'user_mock_trader',
+    account_id: 'acc_personal_futures',
     symbol: 'NVDA',
     asset_class: 'equity',
     direction: 'long',

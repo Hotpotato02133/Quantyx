@@ -6,6 +6,7 @@ import { EquityCurveChart } from '@/components/dashboard/EquityCurveChart'
 import { CalendarHeatmap, SetupPerformanceChart } from '@/components/dashboard/DashboardCharts'
 import { useTrades } from '@/hooks/useTrades'
 import { useUiStore } from '@/store/useUiStore'
+import { useFilterStore } from '@/store/useFilterStore'
 import {
   calcWinRate,
   calcProfitFactor,
@@ -18,7 +19,8 @@ type EquityViewMode = 'pnl' | 'balance' | 'r-multiple'
 
 export default function DashboardPage() {
   const { setTradeSheetOpen } = useUiStore()
-  const { data: trades = [], isLoading, refetch, isFetching } = useTrades()
+  const { accountId } = useFilterStore()
+  const { data: trades = [], isLoading, refetch, isFetching } = useTrades({ accountId })
   const [equityView, setEquityView] = useState<EquityViewMode>('pnl')
 
   const stats = useMemo<TradeStats>(() => {

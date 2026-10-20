@@ -98,7 +98,7 @@ export function CsvImportModal({ isOpen, onClose }: CsvImportModalProps) {
       }
 
       setParsedRows(rows)
-    } catch (err) {
+    } catch {
       setError('Failed to parse CSV file. Please verify format.')
     }
   }
@@ -148,7 +148,7 @@ export function CsvImportModal({ isOpen, onClose }: CsvImportModalProps) {
         setIsSuccess(false)
         onClose()
       }, 1500)
-    } catch (err) {
+    } catch {
       setError('Error saving imported trades. Check connection.')
     } finally {
       setIsSubmitting(false)

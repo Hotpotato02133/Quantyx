@@ -3,6 +3,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { getAuthenticatedClient, isSupabaseConfigured } from '@/lib/supabase'
 import { MOCK_TRADES } from '@/lib/mockData'
 import { calcPnL, calcRMultiple } from '@/lib/math'
+import { useFilterStore } from '@/store/useFilterStore'
 import type { Trade, TradeInsert, TradeUpdate, TradeFilters } from '@/types'
 
 const HAS_CLERK = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
@@ -47,6 +48,9 @@ export function useTrades(filters: TradeFilters = {}) {
               .select('*')
               .order('entry_at', { ascending: false })
 
+            if (filters.accountId) {
+              query = query.eq('account_id', filters.accountId)
+            }
             if (filters.direction && filters.direction !== 'all') {
               query = query.eq('direction', filters.direction)
             }
@@ -75,6 +79,11 @@ export function useTrades(filters: TradeFilters = {}) {
 
       // Filter in-memory trades
       let result = [...inMemoryTrades]
+      if (filters.accountId) {
+        result = result.filter(
+          (t) => !t.account_id || t.account_id === filters.accountId,
+        )
+      }
       if (filters.direction && filters.direction !== 'all') {
         result = result.filter((t) => t.direction === filters.direction)
       }
@@ -123,6 +132,8 @@ export function useCreateTrade() {
         )
       }
 
+      const activeAccountId = useFilterStore.getState().accountId
+
       if (HAS_CLERK && isSupabaseConfigured) {
         try {
           const token = await getToken({ template: 'supabase' })
@@ -130,7 +141,12 @@ export function useCreateTrade() {
             const client = getAuthenticatedClient(token)
             const { data, error } = await client
               .from('trades')
-              .insert({ ...newTrade, pnl, r_multiple } as never)
+              .insert({
+                ...newTrade,
+                account_id: newTrade.account_id ?? activeAccountId ?? undefined,
+                pnl,
+                r_multiple,
+              } as never)
               .select()
               .single()
 
@@ -144,6 +160,7 @@ export function useCreateTrade() {
       const created: Trade = {
         id: `tr_${Date.now()}`,
         user_id: 'user_local',
+        account_id: newTrade.account_id ?? activeAccountId ?? undefined,
         ...newTrade,
         pnl,
         r_multiple,
@@ -162,6 +179,7 @@ export function useCreateTrade() {
       const optimisticTrade: Trade = {
         id: `optimistic-${Date.now()}`,
         user_id: 'optimistic',
+        account_id: newTrade.account_id ?? useFilterStore.getState().accountId ?? undefined,
         pnl: null,
         r_multiple: null,
         created_at: new Date().toISOString(),

@@ -9,7 +9,33 @@ import './index.css'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
-function RootApp() {
+const darkAppearance = {
+  variables: {
+    colorPrimary: '#1DB954',
+    colorBackground: '#141414',
+    colorInputBackground: '#1C1C1E',
+    colorInputText: '#F4F4F5',
+    colorText: '#F4F4F5',
+    colorTextSecondary: '#A1A1AA',
+    colorNeutral: '#F4F4F5',
+    colorDanger: '#EF4444',
+    colorSuccess: '#1DB954',
+    colorWarning: '#FF8C43',
+    borderRadius: '0.375rem',
+    fontFamily: 'Inter, system-ui, sans-serif',
+  },
+  elements: {
+    card: 'bg-[#141414] border border-[#262626] shadow-2xl',
+    headerTitle: 'text-[#F4F4F5] font-semibold text-sm',
+    headerSubtitle: 'text-[#A1A1AA] text-xs',
+    socialButtonsBlockButton: 'border-[#262626] bg-[#18181B] text-[#F4F4F5] hover:bg-white/[0.05]',
+    formButtonPrimary: 'bg-[#1DB954] hover:bg-[#1DB954]/90 text-[#0A0A0A] font-semibold text-xs py-2',
+    formFieldInput: 'bg-[#18181B] border-[#262626] text-[#F4F4F5] text-xs focus:border-[#1DB954]',
+    footerActionLink: 'text-[#1DB954] hover:underline text-xs',
+  },
+}
+
+export function RootApp() {
   const content = (
     <QueryClientProvider client={queryClient}>
       <App />
@@ -18,7 +44,14 @@ function RootApp() {
   )
 
   if (PUBLISHABLE_KEY) {
-    return <ClerkProvider publishableKey={PUBLISHABLE_KEY}>{content}</ClerkProvider>
+    return (
+      <ClerkProvider
+        publishableKey={PUBLISHABLE_KEY}
+        appearance={darkAppearance}
+      >
+        {content}
+      </ClerkProvider>
+    )
   }
 
   return content

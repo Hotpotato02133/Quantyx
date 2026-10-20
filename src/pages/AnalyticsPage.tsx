@@ -11,6 +11,7 @@ import {
 import { AppShell } from '@/components/layout/AppShell'
 import { useTrades } from '@/hooks/useTrades'
 import { useUiStore } from '@/store/useUiStore'
+import { useFilterStore } from '@/store/useFilterStore'
 import {
   TrendingUp,
   Activity,
@@ -21,7 +22,8 @@ import {
 import { cn } from '@/lib/cn'
 
 export default function AnalyticsPage() {
-  const { data: trades = [] } = useTrades()
+  const { accountId } = useFilterStore()
+  const { data: trades = [] } = useTrades({ accountId })
   const { privacyMode } = useUiStore()
 
   // Calculate day of week PnL
@@ -177,7 +179,7 @@ export default function AnalyticsPage() {
                       fontSize: 12,
                       fontFamily: 'monospace',
                     }}
-                    formatter={(val: any) => [`$${val}`, 'Net PnL']}
+                    formatter={(val) => [`$${val ?? 0}`, 'Net PnL']}
                   />
                   <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
                     {dayOfWeekData.map((entry, index) => (
@@ -215,7 +217,7 @@ export default function AnalyticsPage() {
                       fontSize: 12,
                       fontFamily: 'monospace',
                     }}
-                    formatter={(val: any) => [`${val} trades`, 'Count']}
+                    formatter={(val) => [`${val ?? 0} trades`, 'Count']}
                   />
                   <Bar dataKey="count" fill="#1DB954" radius={[4, 4, 0, 0]} />
                 </BarChart>

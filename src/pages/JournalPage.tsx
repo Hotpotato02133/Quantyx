@@ -9,10 +9,11 @@ import { Plus, FileSpreadsheet } from 'lucide-react'
 
 export default function JournalPage() {
   const { setTradeSheetOpen } = useUiStore()
-  const { direction, outcome, symbol } = useFilterStore()
+  const { accountId, direction, outcome, symbol } = useFilterStore()
   const [csvModalOpen, setCsvModalOpen] = useState(false)
 
   const { data: trades = [], isLoading } = useTrades({
+    accountId,
     direction: direction !== 'all' ? direction : undefined,
     status: outcome !== 'all' ? (outcome === 'win' ? 'closed' : outcome === 'loss' ? 'closed' : undefined) : undefined,
     symbol: symbol || undefined,

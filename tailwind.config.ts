@@ -13,16 +13,23 @@ export default {
         surface: '#141414',
         elevated: '#1C1C1E',
         border: '#262626',
+        'border-subtle': '#262626',
+        'bg-canvas': '#121212',
+        'bg-surface': '#141414',
+        'bg-elevated': '#1C1C1E',
 
         // Financial Semantic Tokens
-        profit: '#1DB954',    // Emerald Green — Long / Profit / Positive Edge
-        warning: '#FF8C43',   // Warm Amber — Breakeven / Drawdown Alert
-        loss: '#EF4444',      // Crimson Red — Short / Loss / Max Drawdown
+        profit: '#1DB954',         // Emerald Green — Long / Profit / Positive Edge
+        'accent-profit': '#1DB954',
+        warning: '#FF8C43',        // Warm Amber — Breakeven / Drawdown Alert
+        'accent-warning': '#FF8C43',
+        loss: '#EF4444',           // Crimson Red — Short / Loss / Max Drawdown
+        'accent-loss': '#EF4444',
 
         // Text hierarchy
         'text-primary': '#F5F5F5',
         'text-secondary': '#A3A3A3',
-        'text-muted': '#525252',
+        'text-muted': '#A1A1AA',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

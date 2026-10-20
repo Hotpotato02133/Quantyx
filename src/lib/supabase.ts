@@ -1,61 +1,87 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
 export const isSupabaseConfigured = Boolean(
   import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY,
 )
 
-const supabaseUrl =
+export const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey =
+export const supabaseAnonKey =
   import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key'
 
 /**
- * Supabase client using the anon key.
+ * Default anon Supabase client singleton.
  *
  * SECURITY RULES (non-negotiable):
  * - NEVER use the service-role key on the frontend.
  * - NEVER bypass RLS policies.
- * - Always inject the Clerk session JWT via the Authorization header
- *   so Supabase can validate the `auth.uid()` claim in RLS policies.
- *
- * Usage:
- *   const token = await window.Clerk.session?.getToken({ template: 'supabase' })
- *   const { data } = await supabase.from('trades').select('*')
- *   // Supabase reads the Authorization header automatically if set via accessToken
+ * - Always inject the Clerk session JWT via Authorization header / accessToken callback
+ *   so PostgreSQL RLS policies can evaluate:
+ *     (SELECT auth.jwt() ->> 'sub') = user_id
  */
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,     // Clerk manages the session — don't double-persist
-    autoRefreshToken: false,   // Clerk handles token refresh
-    detectSessionInUrl: false,
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'quantyx-web/0.1.0',
+export const supabase: SupabaseClient<Database> = createClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    auth: {
+      persistSession: false,     // Clerk manages the session — avoid double-persistence
+      autoRefreshToken: false,   // Clerk handles token refreshing
+      detectSessionInUrl: false,
     },
-  },
-})
-
-/**
- * Creates a Supabase client authenticated with a Clerk JWT.
- * Call this before any authenticated query.
- *
- * @example
- *   const token = await window.Clerk?.session?.getToken({ template: 'supabase' })
- *   const client = getAuthenticatedClient(token)
- *   const { data } = await client.from('trades').select('*')
- */
-export function getAuthenticatedClient(clerkToken: string) {
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
     global: {
       headers: {
-        Authorization: `Bearer ${clerkToken}`,
+        'X-Client-Info': 'quantyx-web/0.1.0',
       },
     },
+  },
+)
+
+/**
+ * Creates an authenticated Supabase client using an explicit Clerk JWT.
+ * Useful for one-off operations or server-side calls.
+ */
+export function getAuthenticatedClient(clerkToken: string): SupabaseClient<Database> {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${clerkToken}`,
+        'X-Client-Info': 'quantyx-web/0.1.0',
+      },
+    },
+  })
+}
+
+/**
+ * Creates a Supabase client that dynamically invokes a token getter callback
+ * before each request, ensuring refreshed Clerk tokens are seamlessly forwarded.
+ */
+export function createClerkSupabaseClient(
+  getToken: () => Promise<string | null>,
+): SupabaseClient<Database> {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'quantyx-web/0.1.0',
+      },
+    },
+    accessToken: async () => {
+      try {
+        const token = await getToken()
+        return token ?? ''
+      } catch {
+        return ''
+      }
     },
   })
 }

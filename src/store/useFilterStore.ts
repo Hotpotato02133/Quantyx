@@ -12,6 +12,9 @@ export interface DateRange {
 }
 
 export interface FilterState {
+  // Active trading account filter — Step 1.4 requirement
+  accountId: string | null
+
   // Active filter values
   direction: TradeDirection
   outcome: TradeOutcome
@@ -20,6 +23,7 @@ export interface FilterState {
   tags: string[]
 
   // Actions
+  setAccountId: (id: string | null) => void
   setDirection: (direction: TradeDirection) => void
   setOutcome: (outcome: TradeOutcome) => void
   setSymbol: (symbol: string) => void
@@ -31,6 +35,7 @@ export interface FilterState {
 // ─── Default State ────────────────────────────────────────────────────────────
 
 const defaultFilters = {
+  accountId: null as string | null,
   direction: 'all' as TradeDirection,
   outcome: 'all' as TradeOutcome,
   symbol: '',
@@ -41,22 +46,27 @@ const defaultFilters = {
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 /**
- * Client-side filter state for the Journal view.
- * Persisted to sessionStorage so filters survive page refreshes within a session.
- * URL sync is handled in JournalPage via useEffect + URLSearchParams.
+ * Client-side filter state for the Journal & Dashboard views.
+ * Persisted to sessionStorage so filters and active account survive page refreshes.
  */
 export const useFilterStore = create<FilterState>()(
   persist(
     (set) => ({
       ...defaultFilters,
 
+      setAccountId: (accountId) => set({ accountId }),
       setDirection: (direction) => set({ direction }),
       setOutcome: (outcome) => set({ outcome }),
       setSymbol: (symbol) => set({ symbol }),
       setDateRange: (dateRange) => set({ dateRange }),
       setTags: (tags) => set({ tags }),
 
-      resetFilters: () => set({ ...defaultFilters }),
+      // Resets search and category filters while preserving selected accountId
+      resetFilters: () =>
+        set((state) => ({
+          ...defaultFilters,
+          accountId: state.accountId,
+        })),
     }),
     {
       name: 'quantyx-filter-state',

@@ -45,10 +45,14 @@ function DirectionPill({ direction }: { direction: 'long' | 'short' }) {
 }
 
 function StatusPill({ status }: { status: Trade['status'] }) {
-  const styles: Record<Trade['status'], string> = {
+  const styles: Record<string, string> = {
     closed: 'bg-[#525252]/15 text-[#A1A1AA] border-[#525252]/20',
     open: 'bg-profit/15 text-profit border-profit/20',
     cancelled: 'bg-warning/15 text-warning border-warning/20',
+    OPEN: 'bg-profit/15 text-profit border-profit/20',
+    WIN: 'bg-profit/15 text-profit border-profit/20',
+    LOSS: 'bg-loss/15 text-loss border-loss/20',
+    BREAKEVEN: 'bg-warning/15 text-warning border-warning/20',
   }
   return (
     <span

@@ -6,10 +6,10 @@ This is your master execution prompt file. Feed each phase sequentially to your 
 
 ## Phase 1: Foundation, Auth & Database Wiring (Agent: Architect / Setup)
 **Goal:** Bootstrapped Vite + React + TypeScript project with Clerk Auth and authenticated Supabase client.
-- [ ] **Step 1.1:** Initialize Vite React-TS app, configure Tailwind CSS v4 with custom color tokens (`#121212`, `#141414`, `#1DB954`, `#FF8C43`), and install ShadCN UI base components (`button`, `dialog`, `dropdown-menu`, `command`, `table`, `sheet`, `badge`, `tabs`).
-- [ ] **Step 1.2:** Configure `<ClerkProvider>` at root with dark-theme localization and protect `/dashboard/*` routes.
-- [ ] **Step 1.3:** Create `src/lib/supabase.ts` using `useSession()` from Clerk to inject the bearer token into `@supabase/supabase-js`.
-- [ ] **Step 1.4:** Build the **Account Switcher** in the top navigation bar allowing users to create their first trading account (e.g., "Main Futures Account - $10,000") and store the active `accountId` in Zustand (`useFilterStore`).
+- [x] **Step 1.1:** Initialize Vite React-TS app, configure Tailwind CSS v4 with custom color tokens (`#121212`, `#141414`, `#1DB954`, `#FF8C43`), and install ShadCN UI base components (`button`, `dialog`, `dropdown-menu`, `command`, `table`, `sheet`, `badge`, `tabs`).
+- [x] **Step 1.2:** Configure `<ClerkProvider>` at root with dark-theme localization and protect `/dashboard/*` routes.
+- [x] **Step 1.3:** Create `src/lib/supabase.ts` using `useSession()` from Clerk to inject the bearer token into `@supabase/supabase-js`.
+- [x] **Step 1.4:** Build the **Account Switcher** in the top navigation bar allowing users to create their first trading account (e.g., "Main Futures Account - $10,000") and store the active `accountId` in Zustand (`useFilterStore`).
 
 ## Phase 2: Financial Math Engine & Trade Ingestion (Agent: Core Logic)
 **Goal:** Accurate financial calculation utilities, quick-entry drawer, and CSV batch import.

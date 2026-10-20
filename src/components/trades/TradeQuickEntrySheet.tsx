@@ -23,6 +23,7 @@ const tradeSchema = z.object({
   exit_at: z.string().optional(),
   notes: z.string().optional(),
   tags: z.string().optional(),
+  screenshot_url: z.string().optional(),
 })
 
 type TradeFormValues = z.infer<typeof tradeSchema>
@@ -206,7 +207,7 @@ export function TradeQuickEntrySheet() {
             .map((t) => t.trim())
             .filter(Boolean)
         : [],
-      screenshot_url: null,
+      screenshot_url: values.screenshot_url?.trim() || null,
     })
     setTradeSheetOpen(false)
   }
@@ -381,6 +382,11 @@ export function TradeQuickEntrySheet() {
           {/* Tags */}
           <Field label="Tags (comma-separated)">
             <FormInput placeholder="ICT, BOS, FOMO..." {...register('tags')} />
+          </Field>
+
+          {/* Screenshot */}
+          <Field label="Chart Screenshot Link">
+            <FormInput placeholder="https://www.tradingview.com/x/... or image URL" {...register('screenshot_url')} />
           </Field>
 
           {/* Notes */}

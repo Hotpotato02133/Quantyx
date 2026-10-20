@@ -17,10 +17,12 @@ import {
   ArrowDown,
   ChevronRight,
   Loader2,
+  Share2,
 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { cn } from '@/lib/cn'
 import { useUiStore } from '@/store/useUiStore'
+import { ShareTradeCardModal } from '@/components/trades/ShareTradeCardModal'
 import type { Trade } from '@/types'
 
 const TABLE_FEATURES = tableFeatures({ rowSortingFeature })
@@ -170,6 +172,7 @@ export function TradeDataGrid({ trades, isLoading }: TradeDataGridProps) {
   const [directionFilter, setDirectionFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
+  const [sharingTrade, setSharingTrade] = useState<Trade | null>(null)
   const tableContainerRef = useRef<HTMLDivElement>(null)
 
   const filteredData = useMemo(() => {
@@ -181,7 +184,7 @@ export function TradeDataGrid({ trades, isLoading }: TradeDataGridProps) {
     })
   }, [trades, symbolFilter, directionFilter, statusFilter])
 
-  const columnHelper = createColumnHelper<Trade>()
+  const columnHelper = createColumnHelper<typeof TABLE_FEATURES, Trade>()
 
   const columns: any[] = useMemo(() => [
     columnHelper.accessor('entry_at', {
@@ -395,17 +398,26 @@ export function TradeDataGrid({ trades, isLoading }: TradeDataGridProps) {
                             {trade.notes && (
                               <p className="text-sm text-[#A1A1AA] leading-relaxed">{trade.notes}</p>
                             )}
-                            <div className="flex flex-wrap gap-3 text-[11px] text-[#525252]">
-                              <span>Class: <span className="text-[#A1A1AA]">{trade.asset_class}</span></span>
-                              {trade.stop_price && (
-                                <span>Stop: <span className="font-mono text-loss">${Number(trade.stop_price).toFixed(4)}</span></span>
-                              )}
-                              {trade.target_price && (
-                                <span>Target: <span className="font-mono text-profit">${Number(trade.target_price).toFixed(4)}</span></span>
-                              )}
-                              {trade.exit_at && (
-                                <span>Closed: <span className="font-mono text-[#A1A1AA]">{format(parseISO(trade.exit_at), 'MMM d, HH:mm')}</span></span>
-                              )}
+                            <div className="flex items-center justify-between pt-1">
+                              <div className="flex flex-wrap gap-3 text-[11px] text-[#525252]">
+                                <span>Class: <span className="text-[#A1A1AA]">{trade.asset_class}</span></span>
+                                {trade.stop_price && (
+                                  <span>Stop: <span className="font-mono text-loss">${Number(trade.stop_price).toFixed(4)}</span></span>
+                                )}
+                                {trade.target_price && (
+                                  <span>Target: <span className="font-mono text-profit">${Number(trade.target_price).toFixed(4)}</span></span>
+                                )}
+                                {trade.exit_at && (
+                                  <span>Closed: <span className="font-mono text-[#A1A1AA]">{format(parseISO(trade.exit_at), 'MMM d, HH:mm')}</span></span>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => setSharingTrade(trade)}
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.05] hover:bg-white/[0.1] text-xs font-medium text-[#F4F4F5] transition-colors"
+                              >
+                                <Share2 className="h-3.5 w-3.5 text-profit" />
+                                <span>Share Card</span>
+                              </button>
                             </div>
                           </div>
                         </td>
@@ -419,6 +431,12 @@ export function TradeDataGrid({ trades, isLoading }: TradeDataGridProps) {
           </tbody>
         </table>
       </div>
+
+      <ShareTradeCardModal
+        trade={sharingTrade}
+        isOpen={Boolean(sharingTrade)}
+        onClose={() => setSharingTrade(null)}
+      />
     </div>
   )
 }

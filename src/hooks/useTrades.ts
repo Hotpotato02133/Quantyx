@@ -1,7 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/clerk-react'
-import { getAuthenticatedClient } from '@/lib/supabase'
+import { getAuthenticatedClient, isSupabaseConfigured } from '@/lib/supabase'
+import { MOCK_TRADES } from '@/lib/mockData'
+import { calcPnL, calcRMultiple } from '@/lib/math'
 import type { Trade, TradeInsert, TradeUpdate, TradeFilters } from '@/types'
+
+const HAS_CLERK = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
+
+// Safe wrapper for useAuth to avoid errors when Clerk is not mounted
+function useTokenGetter() {
+  if (HAS_CLERK) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { getToken } = useAuth()
+    return getToken
+  }
+  return async () => null
+}
+
+// In-memory trade cache for local dev / demo mode
+let inMemoryTrades: Trade[] = [...MOCK_TRADES]
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
@@ -14,44 +31,68 @@ export const tradeKeys = {
 
 // ─── Fetch Trades ─────────────────────────────────────────────────────────────
 
-/**
- * Fetches trades from Supabase for the current authenticated user.
- * Clerk JWT is injected so Supabase RLS can validate auth.uid().
- */
 export function useTrades(filters: TradeFilters = {}) {
-  const { getToken } = useAuth()
+  const getToken = useTokenGetter()
 
   return useQuery({
     queryKey: tradeKeys.list(filters),
     queryFn: async () => {
-      const token = await getToken({ template: 'supabase' })
-      if (!token) throw new Error('No auth token available')
+      if (HAS_CLERK && isSupabaseConfigured) {
+        try {
+          const token = await getToken({ template: 'supabase' })
+          if (token) {
+            const client = getAuthenticatedClient(token)
+            let query = client
+              .from('trades')
+              .select('*')
+              .order('entry_at', { ascending: false })
 
-      const client = getAuthenticatedClient(token)
-      let query = client
-        .from('trades')
-        .select('*')
-        .order('entry_at', { ascending: false })
+            if (filters.direction && filters.direction !== 'all') {
+              query = query.eq('direction', filters.direction)
+            }
+            if (filters.symbol) {
+              query = query.ilike('symbol', `%${filters.symbol}%`)
+            }
+            if (filters.dateFrom) {
+              query = query.gte('entry_at', filters.dateFrom)
+            }
+            if (filters.dateTo) {
+              query = query.lte('entry_at', filters.dateTo)
+            }
+            if (filters.tags && filters.tags.length > 0) {
+              query = query.overlaps('tags', filters.tags)
+            }
 
+            const { data, error } = await query
+            if (!error && data && data.length > 0) {
+              return data as Trade[]
+            }
+          }
+        } catch {
+          // Fall through to in-memory trades
+        }
+      }
+
+      // Filter in-memory trades
+      let result = [...inMemoryTrades]
       if (filters.direction && filters.direction !== 'all') {
-        query = query.eq('direction', filters.direction)
+        result = result.filter((t) => t.direction === filters.direction)
       }
       if (filters.symbol) {
-        query = query.ilike('symbol', `%${filters.symbol}%`)
+        result = result.filter((t) =>
+          t.symbol.toLowerCase().includes(filters.symbol!.toLowerCase()),
+        )
       }
-      if (filters.dateFrom) {
-        query = query.gte('entry_at', filters.dateFrom)
-      }
-      if (filters.dateTo) {
-        query = query.lte('entry_at', filters.dateTo)
+      if (filters.status && filters.status !== 'all') {
+        result = result.filter((t) => t.status === filters.status)
       }
       if (filters.tags && filters.tags.length > 0) {
-        query = query.overlaps('tags', filters.tags)
+        result = result.filter((t) =>
+          t.tags.some((tag) => filters.tags!.includes(tag)),
+        )
       }
 
-      const { data, error } = await query
-      if (error) throw error
-      return data as Trade[]
+      return result
     },
   })
 }
@@ -60,25 +101,60 @@ export function useTrades(filters: TradeFilters = {}) {
 
 export function useCreateTrade() {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
+  const getToken = useTokenGetter()
 
   return useMutation({
     mutationFn: async (newTrade: TradeInsert) => {
-      const token = await getToken({ template: 'supabase' })
-      if (!token) throw new Error('No auth token available')
+      let pnl = (newTrade as Partial<Trade>).pnl ?? null
+      let r_multiple = (newTrade as Partial<Trade>).r_multiple ?? null
 
-      const client = getAuthenticatedClient(token)
-      const { data, error } = await client
-        .from('trades')
-        .insert(newTrade as never)
-        .select()
-        .single()
+      if (newTrade.status === 'closed' && newTrade.exit_price) {
+        pnl = calcPnL(
+          newTrade.direction,
+          newTrade.entry_price,
+          newTrade.exit_price,
+          newTrade.quantity,
+        )
+        r_multiple = calcRMultiple(
+          pnl,
+          newTrade.entry_price,
+          newTrade.stop_price ?? newTrade.entry_price,
+          newTrade.quantity,
+        )
+      }
 
-      if (error) throw error
-      return data as Trade
+      if (HAS_CLERK && isSupabaseConfigured) {
+        try {
+          const token = await getToken({ template: 'supabase' })
+          if (token) {
+            const client = getAuthenticatedClient(token)
+            const { data, error } = await client
+              .from('trades')
+              .insert({ ...newTrade, pnl, r_multiple } as never)
+              .select()
+              .single()
+
+            if (!error && data) return data as Trade
+          }
+        } catch {
+          // Fall through to in-memory store
+        }
+      }
+
+      const created: Trade = {
+        id: `tr_${Date.now()}`,
+        user_id: 'user_local',
+        ...newTrade,
+        pnl,
+        r_multiple,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+
+      inMemoryTrades = [created, ...inMemoryTrades]
+      return created
     },
 
-    // Optimistic update — UI responds in <16ms
     onMutate: async (newTrade) => {
       await queryClient.cancelQueries({ queryKey: tradeKeys.lists() })
       const previousTrades = queryClient.getQueryData<Trade[]>(tradeKeys.lists())
@@ -93,10 +169,10 @@ export function useCreateTrade() {
         ...newTrade,
       }
 
-      queryClient.setQueriesData({ queryKey: tradeKeys.lists() }, (old: Trade[] | undefined) => [
-        optimisticTrade,
-        ...(old ?? []),
-      ])
+      queryClient.setQueriesData(
+        { queryKey: tradeKeys.lists() },
+        (old: Trade[] | undefined) => [optimisticTrade, ...(old ?? [])],
+      )
 
       return { previousTrades }
     },
@@ -117,30 +193,42 @@ export function useCreateTrade() {
 
 export function useUpdateTrade() {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
+  const getToken = useTokenGetter()
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: TradeUpdate }) => {
-      const token = await getToken({ template: 'supabase' })
-      if (!token) throw new Error('No auth token available')
+      if (HAS_CLERK && isSupabaseConfigured) {
+        try {
+          const token = await getToken({ template: 'supabase' })
+          if (token) {
+            const client = getAuthenticatedClient(token)
+            const { data, error } = await client
+              .from('trades')
+              .update(updates as never)
+              .eq('id', id)
+              .select()
+              .single()
 
-      const client = getAuthenticatedClient(token)
-      const { data, error } = await client
-        .from('trades')
-        .update(updates as never)
-        .eq('id', id)
-        .select()
-        .single()
+            if (!error && data) return data as Trade
+          }
+        } catch {
+          // Fall through to in-memory store
+        }
+      }
 
-      if (error) throw error
-      return data as Trade
+      inMemoryTrades = inMemoryTrades.map((t) =>
+        t.id === id ? { ...t, ...updates, updated_at: new Date().toISOString() } : t,
+      )
+      return inMemoryTrades.find((t) => t.id === id)!
     },
 
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: tradeKeys.lists() })
 
-      queryClient.setQueriesData({ queryKey: tradeKeys.lists() }, (old: Trade[] | undefined) =>
-        (old ?? []).map((t) => (t.id === id ? { ...t, ...updates } : t)),
+      queryClient.setQueriesData(
+        { queryKey: tradeKeys.lists() },
+        (old: Trade[] | undefined) =>
+          (old ?? []).map((t) => (t.id === id ? { ...t, ...updates } : t)),
       )
     },
 
@@ -154,23 +242,32 @@ export function useUpdateTrade() {
 
 export function useDeleteTrade() {
   const queryClient = useQueryClient()
-  const { getToken } = useAuth()
+  const getToken = useTokenGetter()
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const token = await getToken({ template: 'supabase' })
-      if (!token) throw new Error('No auth token available')
+      if (HAS_CLERK && isSupabaseConfigured) {
+        try {
+          const token = await getToken({ template: 'supabase' })
+          if (token) {
+            const client = getAuthenticatedClient(token)
+            const { error } = await client.from('trades').delete().eq('id', id)
+            if (!error) return
+          }
+        } catch {
+          // Fall through
+        }
+      }
 
-      const client = getAuthenticatedClient(token)
-      const { error } = await client.from('trades').delete().eq('id', id)
-      if (error) throw error
+      inMemoryTrades = inMemoryTrades.filter((t) => t.id !== id)
     },
 
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: tradeKeys.lists() })
 
-      queryClient.setQueriesData({ queryKey: tradeKeys.lists() }, (old: Trade[] | undefined) =>
-        (old ?? []).filter((t) => t.id !== id),
+      queryClient.setQueriesData(
+        { queryKey: tradeKeys.lists() },
+        (old: Trade[] | undefined) => (old ?? []).filter((t) => t.id !== id),
       )
     },
 

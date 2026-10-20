@@ -9,17 +9,23 @@ import './index.css'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY — check your .env file.')
+function RootApp() {
+  const content = (
+    <QueryClientProvider client={queryClient}>
+      <App />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  )
+
+  if (PUBLISHABLE_KEY) {
+    return <ClerkProvider publishableKey={PUBLISHABLE_KEY}>{content}</ClerkProvider>
+  }
+
+  return content
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </ClerkProvider>
+    <RootApp />
   </React.StrictMode>,
 )

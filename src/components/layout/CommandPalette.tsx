@@ -8,6 +8,7 @@ import {
   Plus,
   Eye,
   EyeOff,
+  Settings,
   X,
 } from 'lucide-react'
 import { useUiStore } from '@/store/useUiStore'
@@ -28,6 +29,7 @@ const COMMANDS = [
     items: [
       { id: 'action-new-trade', label: 'Log New Trade', icon: Plus, href: null },
       { id: 'action-privacy', label: 'Toggle Privacy Mode', icon: Eye, href: null },
+      { id: 'action-settings', label: 'Open Settings', icon: Settings, href: null },
     ],
   },
 ]
@@ -38,6 +40,7 @@ export function CommandPalette() {
     commandPaletteOpen,
     setCommandPaletteOpen,
     setTradeSheetOpen,
+    setSettingsModalOpen,
     privacyMode,
     togglePrivacyMode,
   } = useUiStore()
@@ -76,9 +79,13 @@ export function CommandPalette() {
         togglePrivacyMode()
         return
       }
+      if (id === 'action-settings') {
+        setSettingsModalOpen(true)
+        return
+      }
       if (href) navigate(href)
     },
-    [navigate, setCommandPaletteOpen, setTradeSheetOpen, togglePrivacyMode],
+    [navigate, setCommandPaletteOpen, setTradeSheetOpen, setSettingsModalOpen, togglePrivacyMode],
   )
 
   if (!commandPaletteOpen) return null

@@ -21,6 +21,11 @@ interface UiState {
   /** Sidebar collapsed */
   sidebarCollapsed: boolean
   toggleSidebar: () => void
+
+  /** Settings modal open state */
+  settingsModalOpen: boolean
+  setSettingsModalOpen: (open: boolean) => void
+  toggleSettingsModal: () => void
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -40,4 +45,8 @@ export const useUiStore = create<UiState>((set) => ({
 
   sidebarCollapsed: false,
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+
+  settingsModalOpen: false,
+  setSettingsModalOpen: (open) => set({ settingsModalOpen: open }),
+  toggleSettingsModal: () => set((s) => ({ settingsModalOpen: !s.settingsModalOpen })),
 }))

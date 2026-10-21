@@ -3,6 +3,7 @@ import { Topbar } from './Topbar'
 import { CommandPalette } from '@/components/layout/CommandPalette'
 import { TradeQuickEntrySheet } from '@/components/trades/TradeQuickEntrySheet'
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary'
+import { SettingsModal } from '@/components/settings/SettingsModal'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -28,6 +29,7 @@ export function AppShell({ children }: AppShellProps) {
       {/* Global overlays */}
       <CommandPalette />
       <TradeQuickEntrySheet />
+      <SettingsModal />
     </div>
   )
 }

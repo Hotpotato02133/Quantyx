@@ -7,12 +7,7 @@ import { CalendarHeatmap, SetupPerformanceChart } from '@/components/dashboard/D
 import { useTrades } from '@/hooks/useTrades'
 import { useUiStore } from '@/store/useUiStore'
 import { useFilterStore } from '@/store/useFilterStore'
-import {
-  calcWinRate,
-  calcProfitFactor,
-  calcExpectancy,
-  calcMaxDrawdown,
-} from '@/lib/math'
+import { calculatePortfolioMetrics, round } from '@/lib/math'
 import type { TradeStats } from '@/types'
 
 type EquityViewMode = 'pnl' | 'balance' | 'r-multiple'
@@ -20,40 +15,48 @@ type EquityViewMode = 'pnl' | 'balance' | 'r-multiple'
 export default function DashboardPage() {
   const { setTradeSheetOpen } = useUiStore()
   const { accountId } = useFilterStore()
+  const initialBalance = 10000 // default starting equity
   const { data: trades = [], isLoading, refetch, isFetching } = useTrades({ accountId })
   const [equityView, setEquityView] = useState<EquityViewMode>('pnl')
 
   const stats = useMemo<TradeStats>(() => {
-    const closed = trades.filter((t) => t.status === 'closed' && t.pnl !== null)
-    const pnls = closed.map((t) => t.pnl!)
-    const rMultiples = closed.map((t) => t.r_multiple).filter((r): r is number => r !== null)
-    const totalPnL = pnls.reduce((sum, p) => sum + p, 0)
+    const metrics = calculatePortfolioMetrics(trades, initialBalance)
+    const pnlPct = round((metrics.totalPnL / initialBalance) * 100, 2)
+    const rExpectancy =
+      metrics.avgRMultiple !== null
+        ? round(metrics.avgRMultiple * (metrics.winRate / 100), 2)
+        : null
 
-    // Build equity curve from cumulative PnL
-    let running = 0
-    const curve = closed
-      .sort((a, b) => new Date(a.exit_at!).getTime() - new Date(b.exit_at!).getTime())
-      .map((t) => { running += t.pnl!; return running })
-
-    const wins = pnls.filter((p) => p > 0)
-    const losses = pnls.filter((p) => p < 0)
-    const { maxDrawdown, maxDrawdownPct } = calcMaxDrawdown(curve)
+    // Sparkline curve data points
+    const sparklineData =
+      metrics.cumulativeEquity.length > 1
+        ? metrics.cumulativeEquity
+        : [initialBalance, initialBalance]
 
     return {
-      totalTrades: closed.length,
-      winRate: calcWinRate(pnls),
-      profitFactor: calcProfitFactor(pnls),
-      expectancy: calcExpectancy(pnls),
-      totalPnL,
-      maxDrawdown,
-      maxDrawdownPct,
-      avgWin: wins.length > 0 ? wins.reduce((s, p) => s + p, 0) / wins.length : 0,
-      avgLoss: losses.length > 0 ? Math.abs(losses.reduce((s, p) => s + p, 0) / losses.length) : 0,
-      bestTrade: pnls.length > 0 ? Math.max(...pnls) : 0,
-      worstTrade: pnls.length > 0 ? Math.min(...pnls) : 0,
-      avgRMultiple: rMultiples.length > 0 ? rMultiples.reduce((s, r) => s + r, 0) / rMultiples.length : null,
+      totalTrades: metrics.totalTrades,
+      winsCount: metrics.winsCount,
+      lossesCount: metrics.lossesCount,
+      breakevenCount: metrics.breakevenCount,
+      winRate: metrics.winRate,
+      profitFactor: metrics.profitFactor,
+      expectancy: metrics.expectancy,
+      rExpectancy,
+      totalPnL: metrics.totalPnL,
+      pnlPct,
+      maxDrawdown: metrics.maxDrawdown,
+      maxDrawdownPct: metrics.maxDrawdownPct,
+      currentDrawdownPct: metrics.maxDrawdownPct,
+      maxDailyDrawdownPct: 5.0,
+      avgWin: metrics.avgWin,
+      avgLoss: metrics.avgLoss,
+      bestTrade: metrics.bestTrade,
+      worstTrade: metrics.worstTrade,
+      avgRMultiple: metrics.avgRMultiple,
+      sparklineData,
     }
-  }, [trades])
+  }, [trades, initialBalance])
+
 
   return (
     <AppShell>

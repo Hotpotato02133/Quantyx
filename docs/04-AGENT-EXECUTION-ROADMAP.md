@@ -33,14 +33,14 @@ This is your master execution prompt file. Feed each phase sequentially to your 
 
 ## Phase 4: Performance Analytics & Charting Bento Grid (Agent: Visualization)
 **Goal:** Institutional-grade visual analytics that update instantaneously when filters change.
-- [ ] **Step 4.1:** Build `<KpiBentoGrid />` featuring 5 top-level metric cards:
+- [x] **Step 4.1:** Build `<KpiBentoGrid />` featuring 5 top-level metric cards:
   1. Net PnL ($ and % return) with mini sparkline
   2. Win Rate % (Circular progress ring + Wins/Losses/BE count)
   3. Profit Factor (Gauge highlighting > 1.5 as green, 1.0–1.5 as orange `#FF8C43`, < 1.0 as red)
   4. Expectancy per Trade ($ and R)
   5. Current vs. Max Drawdown % (Warning banner if approaching account's `max_daily_drawdown_pct`)
-- [ ] **Step 4.2:** Integrate TradingView `lightweight-charts` inside `<EquityCurveChart />` with a toggle between **Cumulative Dollar PnL ($)**, **Account Balance ($)**, and **Cumulative R-Multiple (R)**.
-- [ ] **Step 4.3:** Build `<SetupPerformanceChart />` (horizontal bar chart comparing net PnL and win rate across Playbooks) and `<CalendarHeatmap />` (monthly calendar view coloring each trading day green or red by daily net PnL).
+- [x] **Step 4.2:** Integrate TradingView `lightweight-charts` inside `<EquityCurveChart />` with a toggle between **Cumulative Dollar PnL ($)**, **Account Balance ($)**, and **Cumulative R-Multiple (R)**.
+- [x] **Step 4.3:** Build `<SetupPerformanceChart />` (horizontal bar chart comparing net PnL and win rate across Playbooks) and `<CalendarHeatmap />` (monthly calendar view coloring each trading day green or red by daily net PnL).
 
 ## Phase 5: Power-User UX & Polish (Agent: UI/UX Polish)
 **Goal:** Keyboard shortcuts, Command Palette (`Cmd+K`), and export capabilities.

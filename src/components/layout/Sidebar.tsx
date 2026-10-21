@@ -21,7 +21,7 @@ const BASE_NAV_ITEMS = [
 ]
 
 export function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar } = useUiStore()
+  const { sidebarCollapsed, toggleSidebar, settingsModalOpen, setSettingsModalOpen } = useUiStore()
   const { canManageUsers } = useUserRole()
 
   const navItems = canManageUsers
@@ -75,24 +75,25 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Bottom */}
+      {/* Bottom Settings Action Button */}
       <div className="px-2 pb-4 space-y-0.5 border-t border-border pt-3">
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            cn(
-              'flex items-center gap-3 px-2.5 py-2 rounded-md text-sm transition-colors duration-150',
-              isActive
-                ? 'bg-profit/10 text-profit border border-profit/20'
-                : 'text-[#A1A1AA] hover:bg-white/5 hover:text-[#F4F4F5]',
-              sidebarCollapsed && 'justify-center gap-0 px-0',
-            )
-          }
+        <button
+          type="button"
+          id="sidebar-settings-button"
+          onClick={() => setSettingsModalOpen(true)}
+          className={cn(
+            'flex w-full items-center gap-3 px-2.5 py-2 rounded-md text-sm transition-colors duration-150',
+            settingsModalOpen
+              ? 'bg-profit/10 text-profit border border-profit/20 font-medium'
+              : 'text-[#A1A1AA] hover:bg-white/5 hover:text-[#F4F4F5]',
+            sidebarCollapsed && 'justify-center gap-0 px-0',
+          )}
           title={sidebarCollapsed ? 'Settings' : undefined}
+          aria-label="Open settings"
         >
           <Settings className="h-4 w-4 shrink-0" strokeWidth={1.75} />
           {!sidebarCollapsed && <span>Settings</span>}
-        </NavLink>
+        </button>
       </div>
 
       {/* Collapse toggle */}

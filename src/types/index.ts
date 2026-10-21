@@ -110,18 +110,27 @@ export type TradeUpdate = Partial<TradeInsert>
 
 export interface TradeStats {
   totalTrades: number
+  winsCount?: number
+  lossesCount?: number
+  breakevenCount?: number
   winRate: number           // 0–100
   profitFactor: number
   expectancy: number        // $ per trade
+  rExpectancy?: number | null // R per trade
   totalPnL: number
+  pnlPct?: number           // Total return % on account
   maxDrawdown: number
   maxDrawdownPct: number
+  currentDrawdownPct?: number
+  maxDailyDrawdownPct?: number
   avgWin: number
   avgLoss: number
   bestTrade: number
   worstTrade: number
   avgRMultiple: number | null
+  sparklineData?: number[]
 }
+
 
 // ─── Filter / Query ────────────────────────────────────────────────────────────
 

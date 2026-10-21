@@ -13,13 +13,13 @@ This is your master execution prompt file. Feed each phase sequentially to your 
 
 ## Phase 2: Financial Math Engine & Trade Ingestion (Agent: Core Logic)
 **Goal:** Accurate financial calculation utilities, quick-entry drawer, and CSV batch import.
-- [ ] **Step 2.1:** Create `src/lib/math.ts` with pure, unit-tested functions:
+- [x] **Step 2.1:** Create `src/lib/math.ts` with pure, unit-tested functions:
   - `calculateTradePnL(side, entry, exit, qty, fees)`
   - `calculateRMultiple(netPnl, entry, stopLoss, qty)`
   - `calculatePortfolioMetrics(trades, initialBalance)` -> returns Win Rate, Profit Factor (`grossWins / |grossLosses|`), Expectancy, Max Drawdown %, and Cumulative Equity array.
-- [ ] **Step 2.2:** Build `<TradeQuickEntrySheet />` triggered via `Cmd+N` or primary CTA. Include auto-calculating live preview badges showing projected Risk %, R-Multiple, and Net PnL as the user types entry, exit, and stop-loss prices.
-- [ ] **Step 2.3:** Implement client-side image compression (`browser-image-compression` to WebP) and upload to Supabase `trade-screenshots` bucket inside the trade form.
-- [ ] **Step 2.4:** Build `<CsvImportModal />` using `PapaParse` with a column-mapping step so users can drag-and-drop exported trade history CSVs and bulk-insert them into Supabase.
+- [x] **Step 2.2:** Build `<TradeQuickEntrySheet />` triggered via `Cmd+N` or primary CTA. Include auto-calculating live preview badges showing projected Risk %, R-Multiple, and Net PnL as the user types entry, exit, and stop-loss prices.
+- [x] **Step 2.3:** Implement client-side image compression (`browser-image-compression` to WebP) and upload to Supabase `trade-screenshots` bucket inside the trade form.
+- [x] **Step 2.4:** Build `<CsvImportModal />` using `PapaParse` with a column-mapping step so users can drag-and-drop exported trade history CSVs and bulk-insert them into Supabase.
 
 ## Phase 3: High-Density Virtualized Data Grid (Agent: Data Grid Specialist)
 **Goal:** A zero-lag table capable of sorting, filtering, and inline editing 10,000+ trade rows.

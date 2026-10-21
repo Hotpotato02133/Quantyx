@@ -142,3 +142,26 @@ describe('Formatters', () => {
     expect(formatRMultiple(null)).toBe('—')
   })
 })
+
+describe('Backward Compatibility Helper Functions', () => {
+  it('calcPnL delegates to calculateTradePnL and returns net_pnl', () => {
+    expect(calcPnL('SHORT', 100, 90, 2, 1.5)).toBe(18.5)
+    expect(calcPnL('long', 50, 60, 10, 5)).toBe(95)
+  })
+
+  it('calcRMultiple delegates to calculateRMultiple', () => {
+    expect(calcRMultiple(-50, 100, 90, 10)).toBe(-0.5)
+    expect(calcRMultiple(250, 100, 90, 10)).toBe(2.5)
+  })
+
+  it('calcWinRate calculates win rate percentage', () => {
+    expect(calcWinRate([100, -50, 200, 0])).toBe(50.0)
+    expect(calcWinRate([])).toBe(0)
+  })
+
+  it('calcExpectancy computes expected dollar value per trade', () => {
+    // 2 wins of 100, 2 losses of 50 -> 50% * 100 - 50% * 50 = 50 - 25 = 25
+    expect(calcExpectancy([100, 100, -50, -50])).toBe(25)
+    expect(calcExpectancy([])).toBe(0)
+  })
+})

@@ -63,12 +63,22 @@ export function getRoleLabel(role: UserRole): string {
   }
 }
 
+function useClerkUserSafe() {
+  if (HAS_CLERK) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useUser()
+  }
+  return { user: null, isLoaded: true, isSignedIn: false }
+}
+
 /**
  * Hook to retrieve the current authenticated user's role and permissions.
  * Reads from Clerk's user.publicMetadata (with unsafeMetadata fallback),
  * defaulting safely to 'user'.
  */
 export function useUserRole(): UserRoleResult {
+  const { user, isLoaded, isSignedIn } = useClerkUserSafe()
+
   if (!HAS_CLERK) {
     // Local / Demo mode fallback: admin privileges so power-user features remain testable
     return {
@@ -83,13 +93,6 @@ export function useUserRole(): UserRoleResult {
       isSignedIn: true,
     }
   }
-
-  // When Clerk is active, call useUser() safely
-  return useClerkUserRole()
-}
-
-function useClerkUserRole(): UserRoleResult {
-  const { user, isLoaded, isSignedIn } = useUser()
 
   const role: UserRole = parseUserRole(
     (user?.publicMetadata as Record<string, unknown>) ||
@@ -113,3 +116,4 @@ function useClerkUserRole(): UserRoleResult {
     isSignedIn: Boolean(isSignedIn),
   }
 }
+

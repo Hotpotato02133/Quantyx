@@ -23,13 +23,13 @@ This is your master execution prompt file. Feed each phase sequentially to your 
 
 ## Phase 3: High-Density Virtualized Data Grid (Agent: Data Grid Specialist)
 **Goal:** A zero-lag table capable of sorting, filtering, and inline editing 10,000+ trade rows.
-- [ ] **Step 3.1:** Build `<TradeDataGrid />` using `@tanstack/react-table` and `@tanstack/react-virtual`.
-- [ ] **Step 3.2:** Configure custom cell renderers:
+- [x] **Step 3.1:** Build `<TradeDataGrid />` using `@tanstack/react-table` and `@tanstack/react-virtual`.
+- [x] **Step 3.2:** Configure custom cell renderers:
   - **Symbol & Side:** Monospace ticker + colored pill (`LONG` in `#1DB954`/15% opacity, `SHORT` in `#EF4444`/15% opacity).
   - **Net PnL & R-Multiple:** Tabular monospace numbers colored dynamically by sign, respecting global "Privacy Blur Mode".
   - **Playbook & Emotion:** Inline `<Select>` dropdowns that trigger an optimistic `useMutation` update on change without opening a modal.
-- [ ] **Step 3.3:** Add multi-faceted filter bar (Date Range Picker, Symbol search, Side toggle, Playbook multi-select, Status filter) synced to URL query parameters.
-- [ ] **Step 3.4:** Add an expandable Row Detail Drawer displaying the trader's Markdown notes, execution checklist score (1–5 stars), and a lightbox carousel for attached chart screenshots.
+- [x] **Step 3.3:** Add multi-faceted filter bar (Date Range Picker, Symbol search, Side toggle, Playbook multi-select, Status filter) synced to URL query parameters.
+- [x] **Step 3.4:** Add an expandable Row Detail Drawer displaying the trader's Markdown notes, execution checklist score (1–5 stars), and a lightbox carousel for attached chart screenshots.
 
 ## Phase 4: Performance Analytics & Charting Bento Grid (Agent: Visualization)
 **Goal:** Institutional-grade visual analytics that update instantaneously when filters change.

@@ -2,6 +2,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { CommandPalette } from '@/components/layout/CommandPalette'
 import { TradeQuickEntrySheet } from '@/components/trades/TradeQuickEntrySheet'
+import { ErrorBoundary } from '@/components/layout/ErrorBoundary'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -18,7 +19,9 @@ export function AppShell({ children }: AppShellProps) {
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Topbar />
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </main>
       </div>
 

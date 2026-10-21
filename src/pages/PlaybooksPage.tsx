@@ -12,77 +12,8 @@ import { useTrades } from '@/hooks/useTrades'
 import { useUiStore } from '@/store/useUiStore'
 import { cn } from '@/lib/cn'
 
-interface Playbook {
-  id: string
-  name: string
-  tag: string
-  color: string
-  description: string
-  assetClass: string
-  rules: string[]
-}
+import { DEFAULT_PLAYBOOKS, type PlaybookItem as Playbook } from '@/lib/playbooks'
 
-const DEFAULT_PLAYBOOKS: Playbook[] = [
-  {
-    id: 'pb_break_retest',
-    name: 'Break & Retest Continuation',
-    tag: 'BreakAndRetest',
-    color: '#1DB954',
-    description: 'Clean break above/below key psychological level followed by a low-volume retest of structural resistance as support.',
-    assetClass: 'Futures / Equities',
-    rules: [
-      'Higher timeframe (4H/Daily) trend alignment',
-      'Strong displacement candle breaking previous day high/low',
-      'Volume decreases on the pullback into the breakout zone',
-      'Stop loss placed just below the retest pivot swing',
-      'Minimum 2.0R target to nearest major liquidity pool',
-    ],
-  },
-  {
-    id: 'pb_liquidity_sweep',
-    name: 'Liquidity Sweep (ICT / SMC)',
-    tag: 'LiquiditySweep',
-    color: '#FF8C43',
-    description: 'Purge of obvious retail stop-loss clusters at London or session extremes, followed by aggressive market structure shift.',
-    assetClass: 'Futures / Crypto / Forex',
-    rules: [
-      'Identification of clean equal highs or equal lows (BSL/SSL)',
-      'Sharp wick piercing the level during London or NY Open window',
-      '1m/5m market structure shift (MSS) with Fair Value Gap (FVG)',
-      'Entry on the retest of the formed FVG',
-      'Target opposing liquidity pool with 2.5R+ expectancy',
-    ],
-  },
-  {
-    id: 'pb_vwap_reversal',
-    name: 'VWAP Mean Reversion',
-    tag: 'VWAPReversal',
-    color: '#3B82F6',
-    description: 'Counter-trend fade when price extends more than 2.0 standard deviations from intraday Volume-Weighted Average Price.',
-    assetClass: 'Equities / Futures',
-    rules: [
-      'Price touches or exceeds the 2nd standard deviation VWAP band',
-      'RSI shows extreme overbought (>75) or oversold (<25) condition',
-      'Volume exhaustion candle with visible reversal wick',
-      'Target is the VWAP median line',
-      'Strict stop loss: 1.0R maximum risk',
-    ],
-  },
-  {
-    id: 'pb_orb',
-    name: 'Opening Range Breakout (ORB)',
-    tag: 'OpeningRangeBreakout',
-    color: '#A855F7',
-    description: 'Capitalizing on initial 15-minute cash session volatility expansion in the direction of the dominant morning orderflow.',
-    assetClass: 'Index Futures (NQ/ES)',
-    rules: [
-      'Mark the high and low of the first 15 minutes of NYSE cash open (09:30 - 09:45 EST)',
-      'Wait for a 5-minute candle to close completely outside the 15m range',
-      'Confirm with positive Cumulative Volume Delta (CVD)',
-      'Trail stop under each consecutive 5m higher low',
-    ],
-  },
-]
 
 export default function PlaybooksPage() {
   const { data: trades = [] } = useTrades()

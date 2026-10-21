@@ -11,9 +11,13 @@ const HAS_CLERK = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
 // Safe wrapper for useAuth to avoid errors when Clerk is not mounted
 function useTokenGetter() {
   if (HAS_CLERK) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { getToken } = useAuth()
-    return getToken
+    try {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { getToken } = useAuth()
+      return getToken
+    } catch {
+      return async () => null
+    }
   }
   return async () => null
 }

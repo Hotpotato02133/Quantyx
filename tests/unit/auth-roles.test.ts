@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { parseUserRole, getRoleLabel, getRoleBadgeStyle } from '@/hooks/useUserRole'
-import type { UserRole } from '@/types/auth'
 
 describe('Role-Based Access Control (RBAC) Utilities', () => {
   describe('parseUserRole', () => {

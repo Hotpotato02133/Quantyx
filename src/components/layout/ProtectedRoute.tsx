@@ -21,7 +21,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     <>
       <SignedIn>{children}</SignedIn>
       <SignedOut>
-        <RedirectToSignIn />
+        <RedirectToSignIn signInFallbackRedirectUrl="/dashboard" />
       </SignedOut>
     </>
   )

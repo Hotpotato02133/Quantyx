@@ -1,14 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
+import { RoleGuard } from '@/components/auth/RoleGuard'
 import DashboardPage from '@/pages/DashboardPage'
 import JournalPage from '@/pages/JournalPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
 import PlaybooksPage from '@/pages/PlaybooksPage'
+import UsersPage from '@/pages/UsersPage'
+import SignInPage from '@/pages/SignInPage'
+import SignUpPage from '@/pages/SignUpPage'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Authentication Routes */}
+        <Route path="/sign-in/*" element={<SignInPage />} />
+        <Route path="/sign-up/*" element={<SignUpPage />} />
+
+        {/* Root Redirect */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         
         {/* Protected Dashboard routes */}
@@ -54,6 +63,19 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* RBAC Protected: User & Role Management (Admin & User Admin) */}
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <RoleGuard allowedRoles={['admin', 'user_admin']}>
+                <UsersPage />
+              </RoleGuard>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/settings"
           element={

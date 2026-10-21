@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import { useUser } from '@clerk/clerk-react'
+import { UserButton, useUser } from '@clerk/clerk-react'
 import {
   Search,
   Plus,
   Eye,
   EyeOff,
   Bell,
-  ChevronDown,
   FileSpreadsheet,
 } from 'lucide-react'
 import { useUiStore } from '@/store/useUiStore'
 import { AccountSwitcher } from '@/components/layout/AccountSwitcher'
 import { CsvImportModal } from '@/components/trades/CsvImportModal'
+import { useUserRole } from '@/hooks/useUserRole'
 import { cn } from '@/lib/cn'
 
 const HAS_CLERK = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
@@ -20,45 +20,61 @@ function UserAvatar() {
   if (HAS_CLERK) {
     return <ClerkUserAvatar />
   }
+  return <DemoUserAvatar />
+}
+
+function DemoUserAvatar() {
   return (
-    <button
+    <div
       id="topbar-user-menu"
-      aria-label="User menu"
-      className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-md hover:bg-white/[0.05] transition-colors duration-150"
+      className="flex items-center gap-2 pl-1 pr-1 py-0.5"
     >
+      <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-[#FF8C43]/30 bg-[#FF8C43]/15 text-[#FF8C43] font-mono text-[10px] font-semibold uppercase">
+        ADMIN
+      </span>
       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-profit/20 text-profit text-xs font-semibold">
         A
       </div>
       <span className="hidden md:inline text-xs font-medium text-[#F4F4F5]">Alex R.</span>
-      <ChevronDown className="h-3 w-3 text-[#A1A1AA]" strokeWidth={2} />
-    </button>
+    </div>
   )
 }
 
 function ClerkUserAvatar() {
   const { user } = useUser()
+  const { role, roleLabel, roleBadgeColor } = useUserRole()
+
   return (
-    <button
-      id="topbar-user-menu"
-      aria-label="User menu"
-      className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-md hover:bg-white/[0.05] transition-colors duration-150"
-    >
-      {user?.imageUrl ? (
-        <img
-          src={user.imageUrl}
-          alt={user.fullName ?? 'User'}
-          className="h-6 w-6 rounded-full object-cover ring-1 ring-border"
-        />
-      ) : (
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-profit/20 text-profit text-xs font-semibold">
-          {user?.firstName?.[0] ?? 'U'}
-        </div>
-      )}
-      <span className="hidden md:inline text-xs font-medium text-[#F4F4F5]">
-        {user?.firstName ?? 'User'}
+    <div id="topbar-user-menu" className="flex items-center gap-2 pl-1 pr-1 py-0.5">
+      {/* Role Pill Badge */}
+      <span
+        className={cn(
+          'hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border font-mono text-[10px] font-semibold uppercase',
+          roleBadgeColor.bg,
+          roleBadgeColor.text,
+          roleBadgeColor.border
+        )}
+        title={`Assigned Role: ${roleLabel}`}
+      >
+        {role.replace('_', ' ')}
       </span>
-      <ChevronDown className="h-3 w-3 text-[#A1A1AA]" strokeWidth={2} />
-    </button>
+
+      <span className="hidden md:inline text-xs font-medium text-[#F4F4F5]">
+        {user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] ?? 'User'}
+      </span>
+
+      <UserButton
+        appearance={{
+          elements: {
+            userButtonAvatarBox: 'h-6 w-6 ring-1 ring-border',
+            userButtonPopoverCard: 'bg-[#141414] border border-[#262626] shadow-2xl text-[#F4F4F5]',
+            userButtonPopoverActionButton: 'text-[#F4F4F5] hover:bg-white/[0.05]',
+            userButtonPopoverActionButtonText: 'text-xs text-[#F4F4F5]',
+            userButtonPopoverFooter: 'hidden',
+          },
+        }}
+      />
+    </div>
   )
 }
 

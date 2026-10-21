@@ -4,14 +4,16 @@ import {
   BookOpen,
   BarChart3,
   BookMarked,
+  Users,
   Settings,
   ChevronLeft,
   Zap,
 } from 'lucide-react'
 import { useUiStore } from '@/store/useUiStore'
+import { useUserRole } from '@/hooks/useUserRole'
 import { cn } from '@/lib/cn'
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/journal', icon: BookOpen, label: 'Journal' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
@@ -20,6 +22,11 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useUiStore()
+  const { canManageUsers } = useUserRole()
+
+  const navItems = canManageUsers
+    ? [...BASE_NAV_ITEMS, { to: '/users', icon: Users, label: 'Users & Roles' }]
+    : BASE_NAV_ITEMS
 
   return (
     <aside
@@ -47,7 +54,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 space-y-0.5">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+        {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}

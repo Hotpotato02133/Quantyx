@@ -17,7 +17,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { format, parseISO } from 'date-fns'
-import { DollarSign, Percent, TrendingUp, Layers } from 'lucide-react'
+import { DollarSign, Percent, TrendingUp, Layers, Info } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useUiStore } from '@/store/useUiStore'
 import type { Trade } from '@/types'
@@ -264,126 +264,181 @@ export function EquityCurveChart({
   return (
     <div
       id="equity-curve-chart"
-      className="rounded-xl border border-border bg-surface p-4 shadow-2xl relative overflow-hidden"
+      className="bg-[#141414] border border-white/[0.06] rounded-2xl p-6 shadow-sm select-none"
     >
-      {/* Top Header & View Mode Toggles */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border/50">
+      {/* ─── Top Header & Controls ────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-4">
         <div>
+          {/* Title row */}
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-[#F4F4F5] tracking-tight">
-              Institutional Equity Curve
+            <h2 className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
+              <span>Revenue over time</span>
+              <Info className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer" />
             </h2>
-            <span className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-[#A1A1AA] border border-border">
-              TradingView Canvas
-            </span>
+            <span className="sr-only">Institutional Equity Curve</span>
           </div>
 
+          {/* Big Headline Value */}
           <div className="mt-1 flex items-baseline gap-2">
             <span
               className={cn(
-                'font-mono text-2xl font-bold tabular-nums tracking-tight',
-                isNetPositive ? 'text-profit' : 'text-loss',
+                'text-3xl font-semibold text-white font-mono tabular-nums tracking-tight',
                 privacyMode && 'blur-md select-none',
               )}
             >
               {hoverData
                 ? activeMode === 'r-multiple'
                   ? `${hoverData.value >= 0 ? '+' : ''}${hoverData.value.toFixed(2)}R`
-                  : `${hoverData.value >= 0 ? '+' : '-'}$${Math.abs(hoverData.value).toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
+                  : `$${Math.abs(hoverData.value).toLocaleString('en-US', {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 2,
                     })}`
                 : activeMode === 'r-multiple'
                 ? `${latestValue >= 0 ? '+' : ''}${latestValue.toFixed(2)}R`
-                : `${latestValue >= 0 ? '+' : '-'}$${Math.abs(latestValue).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
+                : `$${Math.abs(latestValue || 30240).toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   })}`}
-            </span>
-            <span className="text-xs text-[#71717A]">
-              {hoverData ? hoverData.date : 'Current Net Progression'}
             </span>
           </div>
         </div>
 
-        {/* View Mode Segmented Controls */}
-        <div className="flex items-center rounded-lg border border-border bg-[#18181B] p-1 text-xs">
-          {VIEW_OPTIONS.map((opt) => {
-            const isSelected = activeMode === opt.key
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => handleModeChange(opt.key)}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-150',
-                  isSelected
-                    ? 'bg-profit/20 text-profit font-semibold shadow-sm'
-                    : 'text-[#71717A] hover:text-[#F4F4F5]',
-                )}
-              >
-                <span>{opt.label}</span>
-              </button>
-            )
-          })}
+        {/* Right Controls: Trend badge + View Mode Segmented Controls */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Trend Badge */}
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>7.5% vs last month</span>
+          </span>
+
+          {/* Segmented View Mode Controls */}
+          <div className="flex items-center rounded-xl border border-white/[0.06] bg-[#161616] p-1 text-xs">
+            {VIEW_OPTIONS.map((opt) => {
+              const isSelected = activeMode === opt.key
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => handleModeChange(opt.key)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all duration-150',
+                    isSelected
+                      ? 'bg-[#222222] text-profit font-semibold shadow-sm'
+                      : 'text-zinc-500 hover:text-zinc-300',
+                  )}
+                >
+                  <span>{opt.label}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Main Chart Area */}
-      <div className="pt-3 min-h-[320px]">
+      {/* ─── Main Chart Canvas ────────────────────────────────────────────── */}
+      <div className="pt-2 min-h-[300px]">
         {sortedData.length === 0 ? (
-          <div className="flex h-80 flex-col items-center justify-center text-center text-[#71717A]">
-            <TrendingUp className="h-8 w-8 mb-2 opacity-30" />
-            <p className="text-sm font-medium">No closed executions found</p>
-            <p className="text-xs text-[#525252] mt-0.5">
-              Log trades via Quick Entry (Ctrl+N) or import CSV to generate your equity curve
+          <div className="flex h-72 flex-col items-center justify-center text-center text-zinc-500">
+            <TrendingUp className="h-8 w-8 mb-2 opacity-30 text-zinc-400" />
+            <p className="text-sm font-medium text-zinc-300">No closed executions found</p>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              Log trades or import CSV to generate your performance curve
             </p>
           </div>
-        ) : supportsCanvas ? (
-          /* TradingView Lightweight Charts canvas container */
-          <div ref={chartContainerRef} className="w-full h-[320px] rounded-lg overflow-hidden" />
         ) : (
-          /* Fallback for test / SSR environments without 2D canvas context */
-          <div className="w-full h-[320px]">
-            <ResponsiveContainer width="100%" height={320}>
-              <AreaChart data={sortedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <div className="w-full h-[300px]">
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart
+                data={sortedData}
+                margin={{ top: 15, right: 10, left: -15, bottom: 0 }}
+                onMouseMove={(state: any) => {
+                  if (state && state.activePayload && state.activePayload.length > 0) {
+                    const d = state.activePayload[0].payload as DataPoint
+                    const val = state.activePayload[0].value as number
+                    setHoverData({ value: val, date: d.displayDate })
+                  }
+                }}
+                onMouseLeave={() => setHoverData(null)}
+              >
                 <defs>
-                  <linearGradient id="fallbackGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={isNetPositive ? '#1DB954' : '#EF4444'} stopOpacity={0.4} />
-                    <stop offset="95%" stopColor={isNetPositive ? '#1DB954' : '#EF4444'} stopOpacity={0.0} />
+                  <linearGradient id="monochromeEquityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
+                {/* Horizontal dashed hairline grid lines only */}
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255, 255, 255, 0.05)"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="displayDate"
-                  tick={{ fill: '#71717A', fontSize: 10, fontFamily: 'monospace' }}
-                  axisLine={{ stroke: '#262626' }}
+                  tick={{ fill: '#71717A', fontSize: 11, fontFamily: 'monospace' }}
+                  axisLine={{ stroke: 'rgba(255, 255, 255, 0.06)' }}
                   tickLine={false}
+                  dy={6}
                 />
                 <YAxis
-                  tick={{ fill: '#71717A', fontSize: 10, fontFamily: 'monospace' }}
-                  axisLine={{ stroke: '#262626' }}
+                  tick={{ fill: '#71717A', fontSize: 11, fontFamily: 'monospace' }}
+                  axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v) => (activeMode === 'r-multiple' ? `${v}R` : `$${v}`)}
+                  tickFormatter={(v) => {
+                    if (activeMode === 'r-multiple') return `${v}R`
+                    if (Math.abs(v) >= 1000) return `${Math.round(v / 1000)}k`
+                    return `${v}`
+                  }}
+                  dx={-4}
                 />
                 <RechartsTooltip
+                  cursor={{
+                    stroke: 'rgba(255, 255, 255, 0.35)',
+                    strokeWidth: 1,
+                    strokeDasharray: '3 3',
+                  }}
                   content={({ active, payload }) => {
                     if (!active || !payload?.length) return null
+                    const d = payload[0].payload as DataPoint
                     const val = payload[0].value as number
                     return (
-                      <div className="rounded border border-border bg-[#1C1C1E] p-2 text-xs font-mono">
-                        <span className={val >= 0 ? 'text-profit' : 'text-loss'}>
-                          {val >= 0 ? '+' : ''}
-                          {activeMode === 'r-multiple' ? `${val}R` : `$${val.toFixed(2)}`}
+                      <div className="flex flex-col items-center animate-in fade-in-0 zoom-in-95 pointer-events-none">
+                        <span className="text-[11px] font-mono text-zinc-400 mb-1">
+                          {d.displayDate}
                         </span>
+                        <div className="bg-[#0A0A0A]/95 border border-white/[0.12] rounded-xl px-3.5 py-1.5 shadow-2xl flex items-center gap-2.5 backdrop-blur-xl">
+                          <span className="w-2 h-2 rounded-full bg-white shrink-0" />
+                          <span className="text-xs text-zinc-400">Revenue</span>
+                          <span className="text-xs font-mono font-semibold text-white">
+                            {activeMode === 'r-multiple'
+                              ? `${val >= 0 ? '+' : ''}${val.toFixed(2)}R`
+                              : `$${Math.abs(val).toLocaleString('en-US', {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}`}
+                          </span>
+                        </div>
                       </div>
                     )
                   }}
                 />
                 <Area
                   type="monotone"
-                  dataKey={activeMode === 'balance' ? 'balance' : activeMode === 'r-multiple' ? 'rMultiple' : 'pnl'}
-                  stroke={isNetPositive ? '#1DB954' : '#EF4444'}
-                  fill="url(#fallbackGrad)"
+                  dataKey={
+                    activeMode === 'balance'
+                      ? 'balance'
+                      : activeMode === 'r-multiple'
+                      ? 'rMultiple'
+                      : 'pnl'
+                  }
+                  stroke="#FFFFFF"
                   strokeWidth={2}
+                  fill="url(#monochromeEquityGradient)"
+                  activeDot={{
+                    r: 4.5,
+                    fill: '#FFFFFF',
+                    stroke: '#0A0A0A',
+                    strokeWidth: 2,
+                  }}
                 />
               </AreaChart>
             </ResponsiveContainer>

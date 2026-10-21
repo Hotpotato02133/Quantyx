@@ -9,14 +9,13 @@ import {
   FileSpreadsheet,
 } from 'lucide-react'
 import { useUiStore } from '@/store/useUiStore'
-import { AccountSwitcher } from '@/components/layout/AccountSwitcher'
 import { CsvImportModal } from '@/components/trades/CsvImportModal'
 import { useUserRole } from '@/hooks/useUserRole'
 import { cn } from '@/lib/cn'
 
 const HAS_CLERK = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
 
-function UserAvatar() {
+export function UserAvatar() {
   if (HAS_CLERK) {
     return <ClerkUserAvatar />
   }
@@ -85,21 +84,19 @@ export function Topbar() {
 
   return (
     <>
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-surface px-4 gap-3">
-        {/* Left — Account Switcher & Search Trigger */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-white/[0.06] bg-[#0A0A0A] px-5 gap-3">
+        {/* Left — Search Trigger */}
         <div className="flex items-center gap-3">
-          <AccountSwitcher />
-
           <button
             id="topbar-search"
             onClick={toggleCommandPalette}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/[0.04] border border-border text-[#A1A1AA] text-sm hover:bg-white/[0.07] hover:text-[#F4F4F5] transition-colors duration-150 min-w-[200px]"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#141414] border border-white/[0.06] text-zinc-400 text-xs hover:border-white/[0.14] hover:text-white transition-colors min-w-[200px]"
             aria-label="Open command palette (Ctrl+K)"
           >
-            <Search className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+            <Search className="h-3.5 w-3.5 shrink-0 text-zinc-500" strokeWidth={1.75} />
             <span className="flex-1 text-left">Search or jump to…</span>
-            <kbd className="inline-flex items-center gap-0.5 rounded border border-border px-1 py-0.5 font-mono text-[10px] text-[#525252]">
-              <span>Ctrl</span>
+            <kbd className="inline-flex items-center gap-0.5 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-zinc-400">
+              <span>⌘</span>
               <span>K</span>
             </kbd>
           </button>
@@ -111,10 +108,10 @@ export function Topbar() {
           <button
             id="topbar-import-csv"
             onClick={() => setCsvModalOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-xs font-medium text-[#A1A1AA] hover:text-[#F4F4F5] hover:bg-white/[0.05] transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/[0.06] bg-[#141414] text-xs font-medium text-zinc-400 hover:text-white hover:border-white/[0.12] transition-colors"
             title="Import trades from CSV"
           >
-            <FileSpreadsheet className="h-3.5 w-3.5 text-profit" />
+            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-400" />
             <span>Import CSV</span>
           </button>
 
@@ -122,7 +119,7 @@ export function Topbar() {
           <button
             id="topbar-new-trade"
             onClick={() => setTradeSheetOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-profit text-[#0A0A0A] text-sm font-semibold hover:bg-profit/90 active:scale-95 transition-all duration-150"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 active:scale-95 transition-all shadow-sm"
             aria-label="Log new trade (Ctrl+N)"
           >
             <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -135,10 +132,10 @@ export function Topbar() {
             onClick={togglePrivacyMode}
             aria-label={privacyMode ? 'Disable privacy mode' : 'Enable privacy mode'}
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-md border transition-colors duration-150',
+              'flex h-8 w-8 items-center justify-center rounded-xl border transition-colors',
               privacyMode
-                ? 'border-warning/40 bg-warning/10 text-warning'
-                : 'border-border bg-transparent text-[#A1A1AA] hover:bg-white/[0.05] hover:text-[#F4F4F5]',
+                ? 'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                : 'border-white/[0.06] bg-[#141414] text-zinc-400 hover:text-white hover:border-white/[0.12]',
             )}
             title={privacyMode ? 'Privacy Mode Active (Ctrl+B)' : 'Enable Privacy Mode (Ctrl+B)'}
           >
@@ -153,7 +150,7 @@ export function Topbar() {
           <button
             id="topbar-notifications"
             aria-label="Notifications"
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-[#A1A1AA] hover:bg-white/[0.05] hover:text-[#F4F4F5] transition-colors duration-150"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.06] bg-[#141414] text-zinc-400 hover:text-white hover:border-white/[0.12] transition-colors"
           >
             <Bell className="h-4 w-4" strokeWidth={1.75} />
           </button>

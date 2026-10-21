@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import DashboardPage from '@/pages/DashboardPage'
 import JournalPage from '@/pages/JournalPage'
+import CalendarPage from '@/pages/CalendarPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
 import PlaybooksPage from '@/pages/PlaybooksPage'
 import UsersPage from '@/pages/UsersPage'
@@ -44,6 +45,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <JournalPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <CalendarPage />
             </ProtectedRoute>
           }
         />

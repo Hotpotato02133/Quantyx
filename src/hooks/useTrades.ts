@@ -22,8 +22,31 @@ function useTokenGetter() {
   return async () => null
 }
 
+const TRADES_STORAGE_KEY = 'quantyx-local-trades'
+
+function getInitialTrades(): Trade[] {
+  try {
+    const saved = localStorage.getItem(TRADES_STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {
+    // fallback
+  }
+  return [...MOCK_TRADES]
+}
+
+function saveLocalTrades(trades: Trade[]) {
+  try {
+    localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(trades))
+  } catch {
+    // ignore
+  }
+}
+
 // In-memory trade cache for local dev / demo mode
-let inMemoryTrades: Trade[] = [...MOCK_TRADES]
+let inMemoryTrades: Trade[] = getInitialTrades()
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
@@ -173,6 +196,7 @@ export function useCreateTrade() {
       }
 
       inMemoryTrades = [created, ...inMemoryTrades]
+      saveLocalTrades(inMemoryTrades)
       return created
     },
 
@@ -241,6 +265,7 @@ export function useUpdateTrade() {
       inMemoryTrades = inMemoryTrades.map((t) =>
         t.id === id ? { ...t, ...updates, updated_at: new Date().toISOString() } : t,
       )
+      saveLocalTrades(inMemoryTrades)
       return inMemoryTrades.find((t) => t.id === id)!
     },
 
@@ -282,6 +307,7 @@ export function useDeleteTrade() {
       }
 
       inMemoryTrades = inMemoryTrades.filter((t) => t.id !== id)
+      saveLocalTrades(inMemoryTrades)
     },
 
     onMutate: async (id) => {

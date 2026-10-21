@@ -4,6 +4,7 @@ import { Command } from 'cmdk'
 import {
   LayoutDashboard,
   BookOpen,
+  Calendar,
   BarChart3,
   BookMarked,
   Plus,
@@ -435,6 +436,19 @@ export function CommandPalette() {
                 <BookOpen className="h-4 w-4 text-[#A1A1AA] shrink-0" />
                 <span className="flex-1 font-medium">Trade Journal & Grid</span>
                 <span className="text-[10px] font-mono text-[#525252]">/journal</span>
+              </Command.Item>
+
+              <Command.Item
+                value="nav-calendar go to calendar trading heatmap executions"
+                onSelect={() => {
+                  setCommandPaletteOpen(false)
+                  navigate('/calendar')
+                }}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-[#A1A1AA] hover:bg-white/[0.07] hover:text-[#F4F4F5] data-[selected=true]:bg-white/[0.07] data-[selected=true]:text-[#F4F4F5] transition-colors cursor-pointer"
+              >
+                <Calendar className="h-4 w-4 text-[#A1A1AA] shrink-0" />
+                <span className="flex-1 font-medium">Trading Calendar</span>
+                <span className="text-[10px] font-mono text-[#525252]">/calendar</span>
               </Command.Item>
 
               <Command.Item

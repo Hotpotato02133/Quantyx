@@ -19,8 +19,8 @@
   }
 
   body {
-    background-color: #121212;
-    color: #f5f5f5;
+    background-color: #0A0A0A;
+    color: #FAFAFA;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -39,16 +39,16 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #141414;
+    background: #0A0A0A;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #262626;
+    background: #222222;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #404040;
+    background: #333333;
   }
 }
 

@@ -9,14 +9,14 @@ export default {
     extend: {
       colors: {
         // Canvas & Surfaces
-        canvas: '#121212',
+        canvas: '#0A0A0A',
         surface: '#141414',
-        elevated: '#1C1C1E',
-        border: '#262626',
-        'border-subtle': '#262626',
-        'bg-canvas': '#121212',
+        elevated: '#1A1A1A',
+        border: 'rgba(255, 255, 255, 0.06)',
+        'border-subtle': 'rgba(255, 255, 255, 0.06)',
+        'bg-canvas': '#0A0A0A',
         'bg-surface': '#141414',
-        'bg-elevated': '#1C1C1E',
+        'bg-elevated': '#1A1A1A',
 
         // Financial Semantic Tokens
         profit: '#1DB954',         // Emerald Green — Long / Profit / Positive Edge

@@ -1,8 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { KpiBentoGrid } from '@/components/dashboard/KpiBentoGrid'
 import { EquityCurveChart } from '@/components/dashboard/EquityCurveChart'
-import { SetupPerformanceChart, CalendarHeatmap } from '@/components/dashboard/DashboardCharts'
+import {
+  SetupPerformanceChart,
+  CalendarHeatmap,
+  TradeExecutionSetupsCard,
+  PlanComplianceChart,
+} from '@/components/dashboard/DashboardCharts'
 import { useUiStore } from '@/store/useUiStore'
 import type { Trade, TradeStats } from '@/types'
 
@@ -98,8 +104,30 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
   })
 
   describe('KpiBentoGrid Component (Step 4.1)', () => {
-    it('renders all 5 institutional metric cards with accurate data', () => {
+    it('renders revamped 3-card metric grid matching ShadCN SaaS reference UI by default', () => {
       render(<KpiBentoGrid stats={mockStats} />)
+
+      // 1. Total Trades Card (Leads style)
+      expect(screen.getByText('Total Trades')).toBeInTheDocument()
+      expect(screen.getByText('10')).toBeInTheDocument()
+      expect(screen.getByText('+2')).toBeInTheDocument()
+      expect(screen.getByText('8.0%')).toBeInTheDocument()
+
+      // 2. Win Rate Card (Conversion Rate style)
+      expect(screen.getByText('Win Rate')).toBeInTheDocument()
+      expect(screen.getByText('70%')).toBeInTheDocument()
+      expect(screen.getByText('+8%')).toBeInTheDocument()
+      expect(screen.getByText('2.0%')).toBeInTheDocument()
+
+      // 3. Profit Factor Card (CLV style)
+      expect(screen.getByText('Profit Factor')).toBeInTheDocument()
+      expect(screen.getByText('2.85')).toBeInTheDocument()
+      expect(screen.getByText('+0.35')).toBeInTheDocument()
+      expect(screen.getByText('4.0%')).toBeInTheDocument()
+    })
+
+    it('renders all 5 institutional metric cards with accurate data when variant="institutional"', () => {
+      render(<KpiBentoGrid stats={mockStats} variant="institutional" />)
 
       // 1. Net PnL Card
       expect(screen.getByText('Net Realized PnL')).toBeInTheDocument()
@@ -138,7 +166,7 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
         maxDailyDrawdownPct: 5.0,
       }
 
-      const { rerender } = render(<KpiBentoGrid stats={approachingStats} />)
+      const { rerender } = render(<KpiBentoGrid stats={approachingStats} variant="institutional" />)
       expect(screen.getByText(/Warning: Approaching 5% Risk Limit/i)).toBeInTheDocument()
 
       // Breached limit (e.g. 5.5% with 5% max limit)
@@ -147,24 +175,24 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
         currentDrawdownPct: 5.5,
         maxDailyDrawdownPct: 5.0,
       }
-      rerender(<KpiBentoGrid stats={breachedStats} />)
+      rerender(<KpiBentoGrid stats={breachedStats} variant="institutional" />)
       expect(screen.getByText(/Max Daily Drawdown \(5%\) Breached!/i)).toBeInTheDocument()
     })
 
     it('renders correct color gauge for different profit factor ranges', () => {
       // Moderate edge: 1.25 (Orange)
       const moderateStats: TradeStats = { ...mockStats, profitFactor: 1.25 }
-      const { rerender } = render(<KpiBentoGrid stats={moderateStats} />)
+      const { rerender } = render(<KpiBentoGrid stats={moderateStats} variant="institutional" />)
       expect(screen.getByText('Moderate edge (1.0–1.5)')).toBeInTheDocument()
 
       // Negative edge: 0.75 (Red)
       const negativeStats: TradeStats = { ...mockStats, profitFactor: 0.75 }
-      rerender(<KpiBentoGrid stats={negativeStats} />)
+      rerender(<KpiBentoGrid stats={negativeStats} variant="institutional" />)
       expect(screen.getByText('Negative edge (<1.0)')).toBeInTheDocument()
     })
 
     it('blurs values when privacy mode is enabled', () => {
-      render(<KpiBentoGrid stats={mockStats} />)
+      render(<KpiBentoGrid stats={mockStats} variant="institutional" />)
       const pnlElement = screen.getByText('+$1,455.00')
       expect(pnlElement.className).not.toContain('blur-md')
 
@@ -176,9 +204,11 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
     })
 
     it('renders loading skeleton when isLoading is true', () => {
-      const { container } = render(<KpiBentoGrid isLoading={true} />)
-      const pulses = container.querySelectorAll('.animate-pulse')
-      expect(pulses.length).toBe(5)
+      const { container, rerender } = render(<KpiBentoGrid isLoading={true} />)
+      expect(container.querySelectorAll('.animate-pulse').length).toBe(3)
+
+      rerender(<KpiBentoGrid isLoading={true} variant="institutional" />)
+      expect(container.querySelectorAll('.animate-pulse').length).toBe(5)
     })
   })
 
@@ -229,7 +259,11 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
 
   describe('CalendarHeatmap Component (Step 4.3)', () => {
     it('renders calendar days, navigation controls, and weekday labels', () => {
-      render(<CalendarHeatmap trades={mockTrades} />)
+      render(
+        <MemoryRouter>
+          <CalendarHeatmap trades={mockTrades} />
+        </MemoryRouter>,
+      )
 
       // Calendar weekday headers
       expect(screen.getByText('Sun')).toBeInTheDocument()
@@ -245,7 +279,11 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
     })
 
     it('navigates to previous and next months when clicking navigation buttons', () => {
-      render(<CalendarHeatmap trades={mockTrades} />)
+      render(
+        <MemoryRouter>
+          <CalendarHeatmap trades={mockTrades} />
+        </MemoryRouter>,
+      )
 
       // Starting month corresponds to October 2026 based on mock trades
       expect(screen.getByText('October 2026')).toBeInTheDocument()
@@ -257,6 +295,71 @@ describe('Performance Analytics & Charting Bento Grid (Phase 4)', () => {
       const nextBtn = screen.getByTitle('Next Month')
       fireEvent.click(nextBtn)
       expect(screen.getByText('October 2026')).toBeInTheDocument()
+    })
+
+    it('opens interactive day drill-down modal when clicking on an active trading day', () => {
+      render(
+        <MemoryRouter>
+          <CalendarHeatmap trades={mockTrades} />
+        </MemoryRouter>,
+      )
+
+      // Find day cell with trades (October 15, 2026 has +$500 on NQ1!)
+      const dayCell = screen.getByTitle(/2026-10-15: \+\$500.00/i)
+      expect(dayCell).toBeInTheDocument()
+
+      fireEvent.click(dayCell)
+
+      // Expect modal header and executions to appear
+      expect(screen.getByText(/October 15, 2026/i)).toBeInTheDocument()
+      expect(screen.getByText(/1 execution recorded/i)).toBeInTheDocument()
+      expect(screen.getByText('NQ1!')).toBeInTheDocument()
+      expect(screen.getByText('Open Day in Journal')).toBeInTheDocument()
+    })
+  })
+
+  describe('TradeExecutionSetupsCard Component (Revamped Step 4.4)', () => {
+    it('renders Leads Management title, navigation tabs, and sub-cards', () => {
+      render(<TradeExecutionSetupsCard />)
+
+      expect(screen.getByText('Leads Management')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Status/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Sources/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Qualification/i })).toBeInTheDocument()
+
+      expect(screen.getByText('Open')).toBeInTheDocument()
+      expect(screen.getByText('114')).toBeInTheDocument()
+      expect(screen.getByText('In Progress')).toBeInTheDocument()
+      expect(screen.getByText('62')).toBeInTheDocument()
+    })
+
+    it('switches sub-cards when clicking different tabs', () => {
+      render(<TradeExecutionSetupsCard />)
+
+      const sourcesTab = screen.getByRole('button', { name: /Sources/i })
+      fireEvent.click(sourcesTab)
+      expect(screen.getByText('Break & Retest')).toBeInTheDocument()
+      expect(screen.getByText('VWAP Reversal')).toBeInTheDocument()
+
+      const qualTab = screen.getByRole('button', { name: /Qualification/i })
+      fireEvent.click(qualTab)
+      expect(screen.getByText('Disciplined')).toBeInTheDocument()
+      expect(screen.getByText('Patient Entry')).toBeInTheDocument()
+    })
+  })
+
+  describe('PlanComplianceChart Component (Revamped Step 4.4)', () => {
+    it('renders Retention Rate title, 95% metric, legend, and chart bars', () => {
+      render(<PlanComplianceChart />)
+
+      expect(screen.getByText('Retention Rate')).toBeInTheDocument()
+      expect(screen.getByText('95%')).toBeInTheDocument()
+      expect(screen.getByText('12%')).toBeInTheDocument()
+      expect(screen.getByText('vs last month')).toBeInTheDocument()
+
+      expect(screen.getByText('Enterprises')).toBeInTheDocument()
+      expect(screen.getByText('SMEs')).toBeInTheDocument()
+      expect(screen.getByText('Startups')).toBeInTheDocument()
     })
   })
 })

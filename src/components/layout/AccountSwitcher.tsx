@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ShieldAlert,
   Building2,
+  Layers,
 } from 'lucide-react'
 import { useFilterStore } from '@/store/useFilterStore'
 import { useUiStore } from '@/store/useUiStore'
@@ -127,45 +128,55 @@ export function AccountSwitcher() {
 
   return (
     <>
-      <div className="relative" ref={dropdownRef}>
+      <div className="relative w-full" ref={dropdownRef}>
         <button
           id="account-switcher-trigger"
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-white/[0.04] border border-border text-sm hover:bg-white/[0.08] transition-colors duration-150"
+          className={cn(
+            'w-full bg-[#141414] hover:bg-[#1A1A1A] border border-white/[0.08] hover:border-white/[0.14] rounded-xl p-2.5 flex items-center justify-between transition-all duration-150 text-left select-none group',
+            isOpen && 'bg-[#1A1A1A] border-white/[0.16]',
+          )}
           aria-haspopup="true"
           aria-expanded={isOpen}
           aria-label="Select trading account"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded bg-profit/15 text-profit">
-            <Wallet className="h-3 w-3" strokeWidth={2} />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05] border border-white/[0.06] text-white shrink-0 group-hover:bg-white/[0.08] transition-colors">
+              <Layers className="h-4 w-4 text-zinc-200" strokeWidth={1.75} />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-semibold text-white truncate max-w-[125px] leading-tight">
+                {currentAccount?.name ? currentAccount.name.replace(' Funded #1', ' Eval') : 'Select Account'}
+              </span>
+              <span className="text-[11px] text-zinc-500 truncate leading-tight mt-0.5">
+                {currentAccount?.broker ?? 'Prop Firm'} • {currentAccount?.currency ?? 'USD'}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col text-left">
-            <span className="text-xs font-medium text-[#F4F4F5] max-w-[130px] truncate leading-tight">
-              {currentAccount?.name ?? 'Select Account'}
-            </span>
+          <div className="flex items-center gap-1.5 shrink-0 pl-1">
             <span
               className={cn(
-                'font-mono text-[10px] text-[#A1A1AA] leading-tight tabular-nums',
+                'font-mono text-[11px] text-zinc-400 tabular-nums hidden sm:inline-block',
                 privacyMode && 'blur-sm select-none',
               )}
             >
-              ${currentAccount?.current_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              ${currentAccount?.current_balance.toLocaleString('en-US', { minimumFractionDigits: 0 })}
             </span>
+            <ChevronDown className={cn("h-3.5 w-3.5 text-zinc-500 transition-transform duration-200", isOpen && "rotate-180")} />
           </div>
-          <ChevronDown className="h-3 w-3 text-[#A1A1AA] ml-1 shrink-0" strokeWidth={2} />
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 mt-1.5 w-72 rounded-lg border border-border bg-[#141414] shadow-2xl z-50 py-1.5 backdrop-blur-md animate-in fade-in-0 zoom-in-95">
-            <div className="px-3 py-1.5 border-b border-border/50 flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-[#A1A1AA] uppercase tracking-wider">
+          <div className="absolute bottom-full mb-2 left-0 w-72 rounded-xl border border-white/[0.08] bg-[#141414] shadow-2xl z-50 p-1.5 backdrop-blur-xl animate-in fade-in-0 zoom-in-95">
+            <div className="px-3 py-2 border-b border-white/[0.06] flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Trading Accounts
               </span>
-              <span className="text-[10px] text-[#71717A]">{accounts.length} Total</span>
+              <span className="text-[10px] text-zinc-500 font-mono">{accounts.length} Active</span>
             </div>
 
-            <div className="max-h-60 overflow-y-auto py-1">
+            <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
               {accounts.map((acc) => {
                 const isSelected = acc.id === currentAccount?.id
                 return (
@@ -174,24 +185,24 @@ export function AccountSwitcher() {
                     type="button"
                     onClick={() => handleSelectAccount(acc.id)}
                     className={cn(
-                      'w-full flex items-center justify-between px-3 py-2 text-left hover:bg-white/[0.05] transition-colors',
+                      'w-full flex items-center justify-between px-3 py-2 text-left rounded-lg hover:bg-white/[0.05] transition-colors',
                       isSelected && 'bg-white/[0.06]',
                     )}
                   >
                     <div className="flex flex-col min-w-0 pr-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-semibold text-[#F4F4F5] truncate">
+                        <span className="text-xs font-semibold text-white truncate">
                           {acc.name}
                         </span>
-                        {isSelected && <Check className="h-3 w-3 text-profit shrink-0" strokeWidth={2.5} />}
+                        {isSelected && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" strokeWidth={2.5} />}
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5 text-[10px] text-[#A1A1AA]">
+                      <div className="flex items-center gap-2 mt-0.5 text-[10px] text-zinc-400">
                         <span className="flex items-center gap-1">
-                          <Building2 className="h-2.5 w-2.5" />
+                          <Building2 className="h-2.5 w-2.5 text-zinc-500" />
                           {acc.broker}
                         </span>
                         <span>•</span>
-                        <span className="flex items-center gap-0.5 text-warning">
+                        <span className="flex items-center gap-0.5 text-amber-400/90">
                           <ShieldAlert className="h-2.5 w-2.5" />
                           {acc.max_daily_drawdown_pct}% Max DD
                         </span>
@@ -200,7 +211,7 @@ export function AccountSwitcher() {
                     <div className="text-right shrink-0">
                       <span
                         className={cn(
-                          'font-mono text-xs font-medium text-[#F4F4F5] tabular-nums',
+                          'font-mono text-xs font-medium text-zinc-200 tabular-nums',
                           privacyMode && 'blur-sm select-none',
                         )}
                       >
@@ -212,7 +223,7 @@ export function AccountSwitcher() {
               })}
             </div>
 
-            <div className="pt-1.5 border-t border-border/50 px-2">
+            <div className="pt-1.5 border-t border-white/[0.06] px-1">
               <button
                 type="button"
                 onClick={() => {
@@ -221,10 +232,10 @@ export function AccountSwitcher() {
                   setNewInitialBalance('10000')
                   setIsModalOpen(true)
                 }}
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md bg-white/[0.05] hover:bg-white/[0.1] text-xs font-medium text-[#F4F4F5] transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.09] text-xs font-medium text-white transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Create New Account</span>
+                <span>Add Trading Account</span>
               </button>
             </div>
           </div>

@@ -44,5 +44,5 @@ This is your master execution prompt file. Feed each phase sequentially to your 
 
 ## Phase 5: Power-User UX & Polish (Agent: UI/UX Polish)
 **Goal:** Keyboard shortcuts, Command Palette (`Cmd+K`), and export capabilities.
-- [ ] **Step 5.1:** Implement `<GlobalCommandPalette />` (`cmdk`) allowing instant navigation, account switching, privacy mode toggling (`Cmd+B`), and filtering by typing `"tag:FOMO"` or `"symbol:BTC"`.
-- [ ] **Step 5.2:** Add a "Share Trade Card" generator (`html-to-image`) that renders a sleek, dark-mode summary card of a winning trade (with optional hidden dollar amounts, showing only `%` or `R` gain) ready to share on social media or Discord.
+- [x] **Step 5.1:** Implement `<GlobalCommandPalette />` (`cmdk`) allowing instant navigation, account switching, privacy mode toggling (`Cmd+B`), and filtering by typing `"tag:FOMO"` or `"symbol:BTC"`.
+- [x] **Step 5.2:** Add a "Share Trade Card" generator (`html-to-image`) that renders a sleek, dark-mode summary card of a winning trade (with optional hidden dollar amounts, showing only `%` or `R` gain) ready to share on social media or Discord.

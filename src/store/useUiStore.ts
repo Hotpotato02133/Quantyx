@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { Trade } from '@/types'
 
 interface UiState {
   /** Active trading account ID — null means "all accounts" */
@@ -13,6 +14,14 @@ interface UiState {
   /** Quick-entry trade sheet open state */
   tradeSheetOpen: boolean
   setTradeSheetOpen: (open: boolean) => void
+
+  /** CSV import modal open state */
+  csvModalOpen: boolean
+  setCsvModalOpen: (open: boolean) => void
+
+  /** Active trade for Share Trade Card modal */
+  sharingTrade: Trade | null
+  setSharingTrade: (trade: Trade | null) => void
 
   /** Privacy mode — blurs all dollar amounts */
   privacyMode: boolean
@@ -40,6 +49,12 @@ export const useUiStore = create<UiState>((set) => ({
   tradeSheetOpen: false,
   setTradeSheetOpen: (open) => set({ tradeSheetOpen: open }),
 
+  csvModalOpen: false,
+  setCsvModalOpen: (open) => set({ csvModalOpen: open }),
+
+  sharingTrade: null,
+  setSharingTrade: (trade) => set({ sharingTrade: trade }),
+
   privacyMode: false,
   togglePrivacyMode: () => set((s) => ({ privacyMode: !s.privacyMode })),
 
@@ -50,3 +65,4 @@ export const useUiStore = create<UiState>((set) => ({
   setSettingsModalOpen: (open) => set({ settingsModalOpen: open }),
   toggleSettingsModal: () => set((s) => ({ settingsModalOpen: !s.settingsModalOpen })),
 }))
+

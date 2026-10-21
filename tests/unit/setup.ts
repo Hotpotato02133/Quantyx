@@ -21,3 +21,7 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
   disconnect() {}
 }
+
+// Mock scrollIntoView for JSDOM (required for cmdk and select menus)
+window.HTMLElement.prototype.scrollIntoView = function () {}
+

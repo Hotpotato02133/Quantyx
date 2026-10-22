@@ -83,6 +83,19 @@
   animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 50s) linear infinite var(--marquee-direction, forwards);
+}
+
 @keyframes spotlight {
   0% {
     opacity: 0;
@@ -121,7 +134,7 @@
   animation: shimmer 2s linear infinite;
 }
 
-/* Center Clerk Modal Dialog vertically and horizontally */
+/* Center Clerk Modal Dialog vertically and horizontally with Dark Aesthetic matching screenshot */
 .cl-modalBackdrop {
   display: flex !important;
   align-items: center !important;
@@ -130,15 +143,147 @@
   inset: 0 !important;
   padding: 1.5rem !important;
   overflow-y: auto !important;
-  background-color: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   z-index: 9999 !important;
 }
 
 .cl-modalContent {
   margin: auto !important;
+  max-width: 440px !important;
+  width: 100% !important;
 }
 
+.cl-card {
+  background-color: #121212 !important;
+  border: 1px solid #27272a !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
+}
 
+.cl-headerTitle {
+  color: #ffffff !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  text-align: center !important;
+}
 
+.cl-headerSubtitle {
+  color: #9ca3af !important;
+  font-size: 0.875rem !important;
+  text-align: center !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 0.75rem !important;
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 0.65rem 1rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background-color: #202024 !important;
+  border-color: #3f3f46 !important;
+}
+
+.cl-dividerLine {
+  background-color: #27272a !important;
+}
+
+.cl-dividerText {
+  color: #71717a !important;
+  font-size: 0.75rem !important;
+}
+
+.cl-formFieldLabel {
+  color: #e4e4e7 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+}
+
+.cl-formFieldInput {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 0.75rem !important;
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+  padding: 0.65rem 0.875rem !important;
+  outline: none !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 1px #22c55e !important;
+}
+
+.cl-formButtonPrimary {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  border-radius: 0.75rem !important;
+  padding: 0.65rem 1rem !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #16a34a !important;
+}
+
+.cl-footerActionText {
+  color: #9ca3af !important;
+  font-size: 0.8125rem !important;
+}
+
+.cl-footerActionLink {
+  color: #22c55e !important;
+  font-weight: 500 !important;
+  font-size: 0.8125rem !important;
+}
+
+.cl-footerActionLink:hover {
+  color: #4ade80 !important;
+  text-decoration: underline !important;
+}
+
+.cl-modalCloseButton {
+  background-color: #1c1c1e !important;
+  border: 1px solid #27272a !important;
+  color: #a1a1aa !important;
+  border-radius: 0.5rem !important;
+}
+
+.cl-modalCloseButton:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================================
+   Landing Page: Pointer Cursor on all Sections, Components & CTA Buttons
+   ========================================================================= */
+.landing-page,
+.landing-page section,
+.landing-page header,
+.landing-page footer,
+.landing-page nav,
+.landing-page main,
+.landing-page [role="button"],
+.landing-page button,
+.landing-page a,
+.landing-page .cursor-pointer {
+  cursor: pointer !important;
+}
+
+.landing-page a *,
+.landing-page button *,
+.landing-page [role="button"] * {
+  cursor: pointer !important;
+}

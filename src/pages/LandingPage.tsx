@@ -5,7 +5,6 @@ import { LogoMarquee } from '@/components/landing/LogoMarquee'
 import { FeatureBentoGrid } from '@/components/landing/FeatureBentoGrid'
 import { AnalyticsShowcase } from '@/components/landing/AnalyticsShowcase'
 import { MetricsStrip } from '@/components/landing/MetricsStrip'
-import { PricingSection } from '@/components/landing/PricingSection'
 import { Footer } from '@/components/landing/Footer'
 
 export default function LandingPage() {
@@ -14,12 +13,12 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAFAFA] selection:bg-emerald-500/20 selection:text-emerald-300 overflow-x-hidden font-sans">
+    <div className="landing-page min-h-screen bg-[#0A0A0A] text-[#FAFAFA] selection:bg-emerald-500/20 selection:text-emerald-300 overflow-x-hidden font-sans cursor-pointer">
       {/* Floating Glass Navbar */}
       <Navbar />
 
       {/* Main Content Sections */}
-      <main>
+      <main className="cursor-pointer">
         {/* Hero Section with Spotlight and 3D Container Scroll */}
         <HeroSection />
 
@@ -34,9 +33,6 @@ export default function LandingPage() {
 
         {/* Quantyx by the Numbers Strip */}
         <MetricsStrip />
-
-        {/* Transparent Pricing Section with BorderBeam */}
-        <PricingSection />
       </main>
 
       {/* Final Callout Card & Minimalist Footer */}

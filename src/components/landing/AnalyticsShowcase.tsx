@@ -12,53 +12,53 @@ export function AnalyticsShowcase() {
   const [curveMode, setCurveMode] = useState<'dollar' | 'risk'>('dollar')
 
   return (
-    <section id="analytics" className="py-20 md:py-28 max-w-6xl mx-auto px-4 sm:px-6">
+    <section id="analytics" className="py-20 md:py-28 max-w-6xl mx-auto px-4 sm:px-6 cursor-pointer">
       {/* Section Header */}
-      <div className="max-w-3xl mb-14">
-        <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest block mb-2 font-mono">
+      <div className="max-w-3xl mb-14 cursor-pointer">
+        <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest block mb-2 font-mono cursor-pointer">
           Advanced Analytics
         </span>
-        <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white leading-tight">
+        <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white leading-tight cursor-pointer">
           Institutional clarity for every trading session
         </h2>
-        <p className="mt-4 text-base text-zinc-400 font-normal leading-relaxed">
+        <p className="mt-4 text-base text-zinc-400 font-normal leading-relaxed cursor-pointer">
           Visualize cumulative account growth, compare performance across London and New York market hours, and export verified execution cards for your trading community.
         </p>
       </div>
 
       {/* Split 2 Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center cursor-pointer">
         {/* Left Column: Tab Selectors */}
-        <div className="lg:col-span-5 space-y-3">
+        <div className="lg:col-span-5 space-y-3 cursor-pointer">
           {/* Tab 1 */}
           <button
             onClick={() => setActiveTab('equity')}
-            className={`w-full text-left p-5 rounded-2xl border transition-all ${
+            className={`w-full text-left p-5 rounded-2xl border transition-all cursor-pointer ${
               activeTab === 'equity'
                 ? 'bg-[#181818] border-white/[0.14] shadow-lg ring-1 ring-white/[0.08]'
                 : 'bg-[#111111] border-white/[0.04] hover:bg-[#141414] hover:border-white/[0.08]'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 cursor-pointer">
               <div
-                className={`p-2 rounded-xl ${
+                className={`p-2 rounded-xl cursor-pointer ${
                   activeTab === 'equity'
                     ? 'bg-emerald-500/10 text-emerald-400'
                     : 'bg-zinc-800 text-zinc-400'
                 }`}
               >
-                <TrendingUp className="w-5 h-5" />
+                <TrendingUp className="w-5 h-5 cursor-pointer" />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white">
+              <div className="cursor-pointer">
+                <h3 className="text-sm font-semibold text-white cursor-pointer">
                   Cumulative Equity Curve
                 </h3>
-                <span className="text-[11px] text-zinc-500 font-mono">
+                <span className="text-[11px] text-zinc-500 font-mono cursor-pointer">
                   Continuous Growth Model
                 </span>
               </div>
             </div>
-            <p className="mt-3 text-xs text-zinc-400 leading-relaxed">
+            <p className="mt-3 text-xs text-zinc-400 leading-relaxed cursor-pointer">
               Switch effortlessly between dollar return and risk multiple curves with high contrast crosshair inspection.
             </p>
           </button>
@@ -66,32 +66,32 @@ export function AnalyticsShowcase() {
           {/* Tab 2 */}
           <button
             onClick={() => setActiveTab('sessions')}
-            className={`w-full text-left p-5 rounded-2xl border transition-all ${
+            className={`w-full text-left p-5 rounded-2xl border transition-all cursor-pointer ${
               activeTab === 'sessions'
                 ? 'bg-[#181818] border-white/[0.14] shadow-lg ring-1 ring-white/[0.08]'
                 : 'bg-[#111111] border-white/[0.04] hover:bg-[#141414] hover:border-white/[0.08]'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 cursor-pointer">
               <div
-                className={`p-2 rounded-xl ${
+                className={`p-2 rounded-xl cursor-pointer ${
                   activeTab === 'sessions'
                     ? 'bg-emerald-500/10 text-emerald-400'
                     : 'bg-zinc-800 text-zinc-400'
                 }`}
               >
-                <Clock className="w-5 h-5" />
+                <Clock className="w-5 h-5 cursor-pointer" />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white">
+              <div className="cursor-pointer">
+                <h3 className="text-sm font-semibold text-white cursor-pointer">
                   Plan Compliance & Sessions
                 </h3>
-                <span className="text-[11px] text-zinc-500 font-mono">
+                <span className="text-[11px] text-zinc-500 font-mono cursor-pointer">
                   Time of Day Optimization
                 </span>
               </div>
             </div>
-            <p className="mt-3 text-xs text-zinc-400 leading-relaxed">
+            <p className="mt-3 text-xs text-zinc-400 leading-relaxed cursor-pointer">
               Measure rule adherence week over week and spot which market sessions produce your cleanest winners.
             </p>
           </button>
@@ -99,40 +99,40 @@ export function AnalyticsShowcase() {
           {/* Tab 3 */}
           <button
             onClick={() => setActiveTab('cards')}
-            className={`w-full text-left p-5 rounded-2xl border transition-all ${
+            className={`w-full text-left p-5 rounded-2xl border transition-all cursor-pointer ${
               activeTab === 'cards'
                 ? 'bg-[#181818] border-white/[0.14] shadow-lg ring-1 ring-white/[0.08]'
                 : 'bg-[#111111] border-white/[0.04] hover:bg-[#141414] hover:border-white/[0.08]'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 cursor-pointer">
               <div
-                className={`p-2 rounded-xl ${
+                className={`p-2 rounded-xl cursor-pointer ${
                   activeTab === 'cards'
                     ? 'bg-emerald-500/10 text-emerald-400'
                     : 'bg-zinc-800 text-zinc-400'
                 }`}
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-5 h-5 cursor-pointer" />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white">
+              <div className="cursor-pointer">
+                <h3 className="text-sm font-semibold text-white cursor-pointer">
                   Verified Trade Recap Cards
                 </h3>
-                <span className="text-[11px] text-zinc-500 font-mono">
+                <span className="text-[11px] text-zinc-500 font-mono cursor-pointer">
                   Social & Review Export
                 </span>
               </div>
             </div>
-            <p className="mt-3 text-xs text-zinc-400 leading-relaxed">
+            <p className="mt-3 text-xs text-zinc-400 leading-relaxed cursor-pointer">
               Generate sleek dark mode execution snapshots with one click to share on social media or store in your private review vault.
             </p>
           </button>
         </div>
 
         {/* Right Column: Dynamic Interactive Visualization */}
-        <div className="lg:col-span-7">
-          <div className="rounded-2xl bg-[#141414] border border-white/[0.08] p-6 shadow-2xl min-h-[460px] flex flex-col justify-between">
+        <div className="lg:col-span-7 cursor-pointer">
+          <div className="rounded-2xl bg-[#141414] border border-white/[0.08] p-6 shadow-2xl min-h-[460px] flex flex-col justify-between cursor-pointer">
             <AnimatePresence mode="wait">
               {activeTab === 'equity' && (
                 <motion.div
@@ -141,21 +141,21 @@ export function AnalyticsShowcase() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.25 }}
-                  className="space-y-4"
+                  className="space-y-4 cursor-pointer"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] cursor-pointer">
+                    <div className="cursor-pointer">
+                      <h4 className="text-sm font-semibold text-white cursor-pointer">
                         Equity Growth Trajectory
                       </h4>
-                      <span className="text-xs text-zinc-400">
+                      <span className="text-xs text-zinc-400 cursor-pointer">
                         {curveMode === 'dollar' ? 'Gross and Net PnL ($)' : 'Normalized Risk Multiple (R)'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 bg-[#1C1C1C] p-1 rounded-lg border border-white/[0.06]">
+                    <div className="flex items-center gap-1 bg-[#1C1C1C] p-1 rounded-lg border border-white/[0.06] cursor-pointer">
                       <button
                         onClick={() => setCurveMode('dollar')}
-                        className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                        className={`text-xs px-2.5 py-1 rounded font-medium transition-colors cursor-pointer ${
                           curveMode === 'dollar'
                             ? 'bg-[#2A2A2A] text-white'
                             : 'text-zinc-400 hover:text-white'
@@ -165,7 +165,7 @@ export function AnalyticsShowcase() {
                       </button>
                       <button
                         onClick={() => setCurveMode('risk')}
-                        className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                        className={`text-xs px-2.5 py-1 rounded font-medium transition-colors cursor-pointer ${
                           curveMode === 'risk'
                             ? 'bg-[#2A2A2A] text-white'
                             : 'text-zinc-400 hover:text-white'
@@ -177,10 +177,10 @@ export function AnalyticsShowcase() {
                   </div>
 
                   {/* Visual Chart Graphic */}
-                  <div className="h-64 relative pt-4 flex flex-col justify-between">
+                  <div className="h-64 relative pt-4 flex flex-col justify-between cursor-pointer">
                     <svg
                       viewBox="0 0 500 180"
-                      className="w-full h-full overflow-visible"
+                      className="w-full h-full overflow-visible cursor-pointer"
                     >
                       <defs>
                         <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
@@ -206,7 +206,7 @@ export function AnalyticsShowcase() {
                       <circle cx="350" cy="60" r="4.5" fill="#1DB954" stroke="#ffffff" strokeWidth="2" />
                     </svg>
 
-                    <div className="flex justify-between text-[11px] font-mono text-zinc-500 pt-2 border-t border-white/[0.04]">
+                    <div className="flex justify-between text-[11px] font-mono text-zinc-500 pt-2 border-t border-white/[0.04] cursor-pointer">
                       <span>Jan 02</span>
                       <span>Jan 18</span>
                       <span>Feb 05</span>
@@ -215,20 +215,20 @@ export function AnalyticsShowcase() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    <div className="bg-[#191919] p-3 rounded-xl border border-white/[0.04]">
-                      <span className="text-[11px] text-zinc-400">Total Return</span>
-                      <div className="text-lg font-bold font-mono text-emerald-400 mt-0.5">
+                  <div className="grid grid-cols-3 gap-3 pt-2 cursor-pointer">
+                    <div className="bg-[#191919] p-3 rounded-xl border border-white/[0.04] cursor-pointer hover:border-white/[0.1] transition-colors">
+                      <span className="text-[11px] text-zinc-400 cursor-pointer">Total Return</span>
+                      <div className="text-lg font-bold font-mono text-emerald-400 mt-0.5 cursor-pointer">
                         {curveMode === 'dollar' ? '+$38,420.00' : '+24.6R'}
                       </div>
                     </div>
-                    <div className="bg-[#191919] p-3 rounded-xl border border-white/[0.04]">
-                      <span className="text-[11px] text-zinc-400">Profit Factor</span>
-                      <div className="text-lg font-bold font-mono text-white mt-0.5">2.84</div>
+                    <div className="bg-[#191919] p-3 rounded-xl border border-white/[0.04] cursor-pointer hover:border-white/[0.1] transition-colors">
+                      <span className="text-[11px] text-zinc-400 cursor-pointer">Profit Factor</span>
+                      <div className="text-lg font-bold font-mono text-white mt-0.5 cursor-pointer">2.84</div>
                     </div>
-                    <div className="bg-[#191919] p-3 rounded-xl border border-white/[0.04]">
-                      <span className="text-[11px] text-zinc-400">Max Drawdown</span>
-                      <div className="text-lg font-bold font-mono text-amber-400 mt-0.5">3.8%</div>
+                    <div className="bg-[#191919] p-3 rounded-xl border border-white/[0.04] cursor-pointer hover:border-white/[0.1] transition-colors">
+                      <span className="text-[11px] text-zinc-400 cursor-pointer">Max Drawdown</span>
+                      <div className="text-lg font-bold font-mono text-amber-400 mt-0.5 cursor-pointer">3.8%</div>
                     </div>
                   </div>
                 </motion.div>
@@ -241,63 +241,63 @@ export function AnalyticsShowcase() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.25 }}
-                  className="space-y-4"
+                  className="space-y-4 cursor-pointer"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] cursor-pointer">
+                    <div className="cursor-pointer">
+                      <h4 className="text-sm font-semibold text-white cursor-pointer">
                         Session Expectancy & Volume
                       </h4>
-                      <span className="text-xs text-zinc-400">
+                      <span className="text-xs text-zinc-400 cursor-pointer">
                         Comparing market hours by net profitability
                       </span>
                     </div>
-                    <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 cursor-pointer">
                       London Prime
                     </span>
                   </div>
 
                   {/* Session Breakdown Bars */}
-                  <div className="space-y-4 py-2">
-                    <div className="bg-[#181818] p-4 rounded-xl border border-white/[0.04]">
-                      <div className="flex justify-between text-xs mb-2">
-                        <span className="text-white font-semibold">London Open (08:00 to 11:30 UTC)</span>
-                        <span className="text-emerald-400 font-mono font-bold">+$18,920.00 • 78% Win</span>
+                  <div className="space-y-4 py-2 cursor-pointer">
+                    <div className="bg-[#181818] p-4 rounded-xl border border-white/[0.04] cursor-pointer hover:border-white/[0.1] transition-colors">
+                      <div className="flex justify-between text-xs mb-2 cursor-pointer">
+                        <span className="text-white font-semibold cursor-pointer">London Open (08:00 to 11:30 UTC)</span>
+                        <span className="text-emerald-400 font-mono font-bold cursor-pointer">+$18,920.00 • 78% Win</span>
                       </div>
-                      <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-400 rounded-full w-[78%]" />
+                      <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden cursor-pointer">
+                        <div className="h-full bg-emerald-400 rounded-full w-[78%] cursor-pointer" />
                       </div>
-                      <div className="flex justify-between text-[11px] text-zinc-400 mt-2 font-mono">
-                        <span>42 Executions</span>
-                        <span>Avg +2.4R Winner</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-[#181818] p-4 rounded-xl border border-white/[0.04]">
-                      <div className="flex justify-between text-xs mb-2">
-                        <span className="text-white font-semibold">New York Morning (13:30 to 16:00 UTC)</span>
-                        <span className="text-emerald-400 font-mono font-bold">+$15,410.00 • 65% Win</span>
-                      </div>
-                      <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-400 rounded-full w-[65%]" />
-                      </div>
-                      <div className="flex justify-between text-[11px] text-zinc-400 mt-2 font-mono">
-                        <span>58 Executions</span>
-                        <span>Avg +1.9R Winner</span>
+                      <div className="flex justify-between text-[11px] text-zinc-400 mt-2 font-mono cursor-pointer">
+                        <span className="cursor-pointer">42 Executions</span>
+                        <span className="cursor-pointer">Avg +2.4R Winner</span>
                       </div>
                     </div>
 
-                    <div className="bg-[#181818] p-4 rounded-xl border border-white/[0.04]">
-                      <div className="flex justify-between text-xs mb-2">
-                        <span className="text-white font-semibold">Asian Session (00:00 to 06:00 UTC)</span>
-                        <span className="text-zinc-400 font-mono font-bold">+$4,090.00 • 54% Win</span>
+                    <div className="bg-[#181818] p-4 rounded-xl border border-white/[0.04] cursor-pointer hover:border-white/[0.1] transition-colors">
+                      <div className="flex justify-between text-xs mb-2 cursor-pointer">
+                        <span className="text-white font-semibold cursor-pointer">New York Morning (13:30 to 16:00 UTC)</span>
+                        <span className="text-emerald-400 font-mono font-bold cursor-pointer">+$15,410.00 • 65% Win</span>
                       </div>
-                      <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden">
-                        <div className="h-full bg-zinc-400 rounded-full w-[54%]" />
+                      <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden cursor-pointer">
+                        <div className="h-full bg-emerald-400 rounded-full w-[65%] cursor-pointer" />
                       </div>
-                      <div className="flex justify-between text-[11px] text-zinc-400 mt-2 font-mono">
-                        <span>16 Executions</span>
-                        <span>Avg +1.1R Winner</span>
+                      <div className="flex justify-between text-[11px] text-zinc-400 mt-2 font-mono cursor-pointer">
+                        <span className="cursor-pointer">58 Executions</span>
+                        <span className="cursor-pointer">Avg +1.9R Winner</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#181818] p-4 rounded-xl border border-white/[0.04] cursor-pointer hover:border-white/[0.1] transition-colors">
+                      <div className="flex justify-between text-xs mb-2 cursor-pointer">
+                        <span className="text-white font-semibold cursor-pointer">Asian Session (00:00 to 06:00 UTC)</span>
+                        <span className="text-zinc-400 font-mono font-bold cursor-pointer">+$4,090.00 • 54% Win</span>
+                      </div>
+                      <div className="h-2 w-full bg-[#242424] rounded-full overflow-hidden cursor-pointer">
+                        <div className="h-full bg-zinc-400 rounded-full w-[54%] cursor-pointer" />
+                      </div>
+                      <div className="flex justify-between text-[11px] text-zinc-400 mt-2 font-mono cursor-pointer">
+                        <span className="cursor-pointer">16 Executions</span>
+                        <span className="cursor-pointer">Avg +1.1R Winner</span>
                       </div>
                     </div>
                   </div>
@@ -311,55 +311,55 @@ export function AnalyticsShowcase() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.25 }}
-                  className="space-y-4"
+                  className="space-y-4 cursor-pointer"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] cursor-pointer">
+                    <div className="cursor-pointer">
+                      <h4 className="text-sm font-semibold text-white cursor-pointer">
                         Quantyx Verified Trade Card
                       </h4>
-                      <span className="text-xs text-zinc-400">
+                      <span className="text-xs text-zinc-400 cursor-pointer">
                         Institutional export with verified trade signature
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-emerald-400">
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Verified Ledger</span>
+                    <div className="flex items-center gap-1 text-xs text-emerald-400 cursor-pointer">
+                      <ShieldCheck className="w-4 h-4 cursor-pointer" />
+                      <span className="cursor-pointer">Verified Ledger</span>
                     </div>
                   </div>
 
                   {/* Rendered Trade Card */}
-                  <div className="mx-auto max-w-sm rounded-xl bg-gradient-to-b from-[#1C1C1C] to-[#121212] border border-white/[0.12] p-5 shadow-2xl space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">
+                  <div className="mx-auto max-w-sm rounded-xl bg-gradient-to-b from-[#1C1C1C] to-[#121212] border border-white/[0.12] p-5 shadow-2xl space-y-4 cursor-pointer hover:border-emerald-500/40 transition-all">
+                    <div className="flex items-center justify-between cursor-pointer">
+                      <div className="flex items-center gap-2 cursor-pointer">
+                        <div className="w-6 h-6 rounded-md bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold cursor-pointer">
                           Q
                         </div>
-                        <span className="text-xs font-semibold text-white">
+                        <span className="text-xs font-semibold text-white cursor-pointer">
                           Quantyx Trade Card
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-zinc-500">
+                      <span className="text-[10px] font-mono text-zinc-500 cursor-pointer">
                         ID 948194
                       </span>
                     </div>
 
-                    <div className="flex items-baseline justify-between border-y border-white/[0.06] py-3">
-                      <div>
-                        <div className="text-[11px] text-zinc-400 font-medium">NQ Futures 100</div>
-                        <div className="text-xs font-bold text-white mt-0.5">Silver Bullet Setup</div>
+                    <div className="flex items-baseline justify-between border-y border-white/[0.06] py-3 cursor-pointer">
+                      <div className="cursor-pointer">
+                        <div className="text-[11px] text-zinc-400 font-medium cursor-pointer">NQ Futures 100</div>
+                        <div className="text-xs font-bold text-white mt-0.5 cursor-pointer">Silver Bullet Setup</div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold font-mono text-emerald-400">+$2,850.00</div>
-                        <div className="text-[11px] font-mono text-emerald-400/80">+3.42R</div>
+                      <div className="text-right cursor-pointer">
+                        <div className="text-xl font-bold font-mono text-emerald-400 cursor-pointer">+$2,850.00</div>
+                        <div className="text-[11px] font-mono text-emerald-400/80 cursor-pointer">+3.42R</div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-400">
-                      <div>Entry: 21,390.50</div>
-                      <div className="text-right">Exit: 21,447.50</div>
-                      <div>Duration: 18m 42s</div>
-                      <div className="text-right">Risk Multiple: 3.42R</div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-400 cursor-pointer">
+                      <div className="cursor-pointer">Entry: 21,390.50</div>
+                      <div className="text-right cursor-pointer">Exit: 21,447.50</div>
+                      <div className="cursor-pointer">Duration: 18m 42s</div>
+                      <div className="text-right cursor-pointer">Risk Multiple: 3.42R</div>
                     </div>
                   </div>
                 </motion.div>

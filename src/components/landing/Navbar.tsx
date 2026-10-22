@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { label: 'Features', href: '#features' },
   { label: 'Analytics', href: '#analytics' },
   { label: 'Playbooks', href: '#playbooks' },
-  { label: 'Pricing', href: '#pricing' },
   { label: 'FAQ', href: '#faq' },
 ]
 
@@ -20,13 +19,13 @@ export function Navbar() {
     <header className="fixed top-0 inset-x-0 z-50 px-4 sm:px-6">
       <nav className="max-w-5xl mx-auto mt-4 px-5 py-3 rounded-2xl bg-[#121212]/80 backdrop-blur-xl border border-white/[0.08] flex items-center justify-between shadow-2xl transition-all">
         {/* Left: Brand Icon & Wordmark */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-zinc-400 p-0.5 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+        <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-zinc-400 p-0.5 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform cursor-pointer">
             <div className="w-full h-full bg-[#0A0A0A] rounded-[6px] flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
             </div>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
+          <span className="text-sm font-semibold tracking-tight text-white group-hover:text-zinc-200 transition-colors cursor-pointer">
             Quantyx
           </span>
         </Link>
@@ -37,7 +36,7 @@ export function Navbar() {
             <a
               key={link.label}
               href={link.href}
-              className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+              className="text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
             >
               {link.label}
             </a>
@@ -51,7 +50,7 @@ export function Navbar() {
               <SignedIn>
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center gap-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center gap-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
                   <span>Go to Dashboard</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -74,13 +73,13 @@ export function Navbar() {
             <>
               <Link
                 to="/sign-in"
-                className="text-xs font-medium text-zinc-300 hover:text-white px-3 py-1.5 transition-colors"
+                className="text-xs font-medium text-zinc-300 hover:text-white px-3 py-1.5 transition-colors cursor-pointer"
               >
                 Sign In
               </Link>
               <Link
                 to="/dashboard"
-                className="bg-white text-black hover:bg-zinc-200 text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                className="bg-white text-black hover:bg-zinc-200 text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
               >
                 Start Journaling
               </Link>
@@ -91,10 +90,10 @@ export function Navbar() {
         {/* Mobile Hamburger Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-1.5 text-zinc-400 hover:text-white focus:outline-none"
+          className="md:hidden p-1.5 text-zinc-400 hover:text-white focus:outline-none cursor-pointer"
           aria-label="Toggle navigation menu"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileMenuOpen ? <X className="w-5 h-5 cursor-pointer" /> : <Menu className="w-5 h-5 cursor-pointer" />}
         </button>
       </nav>
 
@@ -106,7 +105,7 @@ export function Navbar() {
               key={link.label}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-medium text-zinc-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/[0.05] transition-colors"
+              className="text-sm font-medium text-zinc-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/[0.05] transition-colors cursor-pointer"
             >
               {link.label}
             </a>
@@ -118,7 +117,7 @@ export function Navbar() {
                   <Link
                     to="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center bg-white text-black font-semibold text-xs py-2.5 rounded-xl"
+                    className="w-full text-center bg-white text-black font-semibold text-xs py-2.5 rounded-xl cursor-pointer"
                   >
                     Go to Dashboard
                   </Link>
@@ -127,7 +126,7 @@ export function Navbar() {
                   <SignInButton mode="modal">
                     <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="w-full text-center text-xs font-medium text-zinc-300 py-2"
+                      className="w-full text-center text-xs font-medium text-zinc-300 py-2 cursor-pointer"
                     >
                       Sign In
                     </button>
@@ -135,7 +134,7 @@ export function Navbar() {
                   <SignUpButton mode="modal">
                     <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="w-full text-center bg-white text-black font-semibold text-xs py-2.5 rounded-xl"
+                      className="w-full text-center bg-white text-black font-semibold text-xs py-2.5 rounded-xl cursor-pointer"
                     >
                       Start Journaling
                     </button>
@@ -147,14 +146,14 @@ export function Navbar() {
                 <Link
                   to="/sign-in"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center text-xs font-medium text-zinc-300 py-2"
+                  className="w-full text-center text-xs font-medium text-zinc-300 py-2 cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center bg-white text-black font-semibold text-xs py-2.5 rounded-xl"
+                  className="w-full text-center bg-white text-black font-semibold text-xs py-2.5 rounded-xl cursor-pointer"
                 >
                   Start Journaling
                 </Link>

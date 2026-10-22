@@ -11,7 +11,7 @@ export function BentoGrid({ className, children }: BentoGridProps) {
   return (
     <div
       className={cn(
-        'grid grid-cols-1 md:grid-cols-12 gap-4 max-w-6xl mx-auto',
+        'grid grid-cols-1 md:grid-cols-12 gap-4 max-w-6xl mx-auto cursor-pointer',
         className,
       )}
     >
@@ -56,7 +56,7 @@ export function BentoGridItem({
       onMouseMove={handleMouseMove}
       onClick={onClick}
       className={cn(
-        'group relative overflow-hidden rounded-2xl bg-[#141414] p-6 border border-white/[0.07] transition-all duration-300 hover:border-white/[0.16] flex flex-col justify-between',
+        'group relative overflow-hidden rounded-2xl bg-[#141414] p-6 border border-white/[0.07] transition-all duration-300 hover:border-white/[0.16] flex flex-col justify-between cursor-pointer',
         className,
       )}
     >

@@ -9,17 +9,18 @@ import PlaybooksPage from '@/pages/PlaybooksPage'
 import UsersPage from '@/pages/UsersPage'
 import SignInPage from '@/pages/SignInPage'
 import SignUpPage from '@/pages/SignUpPage'
+import LandingPage from '@/pages/LandingPage'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Marketing Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* Public Authentication Routes */}
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
-
-        {/* Root Redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         
         {/* Protected Dashboard routes */}
         <Route

@@ -1,0 +1,3024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantyx — Complete Call Flow &amp; Architecture Documentation</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg: #0f172a; --surface: #1e293b; --border: #334155;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8;
+  --warn: #fbbf24; --err: #f87171; --ok: #34d399;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+h1 { font-size: 2.4rem; margin-bottom: 8px; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 1.7rem; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+h3 { font-size: 1.25rem; margin: 32px 0 12px; color: var(--accent); }
+h4 { font-size: 1.05rem; margin: 20px 0 8px; color: var(--warn); }
+p { margin: 8px 0; color: var(--muted); }
+.subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 32px; }
+.mermaid { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; overflow-x: auto; position: relative; }
+.mermaid.is-enhanced { padding: 0; overflow: hidden; min-height: 260px; }
+.mermaid-viewport { padding: 54px 24px 24px; overflow: hidden; cursor: grab; touch-action: none; min-height: 260px; }
+.mermaid-viewport.is-dragging { cursor: grabbing; }
+.mermaid-viewport svg { max-width: none !important; height: auto; transform-origin: 0 0; transition: transform 120ms ease; }
+.mermaid-toolbar { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px; background: rgba(15,23,42,0.92); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.mermaid-toolbar button, .mermaid-toolbar .zoom-level { height: 28px; min-width: 32px; border: 1px solid var(--border); border-radius: 6px; background: #1e293b; color: var(--text); font: 600 0.78rem system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; }
+.mermaid-toolbar button { cursor: pointer; }
+.mermaid-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+.mermaid-toolbar .zoom-level { min-width: 52px; color: var(--muted); background: transparent; }
+.call-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+.call-table th { background: #1a2744; color: var(--accent); text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+.call-table td { padding: 8px 14px; border: 1px solid var(--border); vertical-align: top; }
+.call-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.tag-async { background: #7c3aed33; color: #a78bfa; }
+.tag-class { background: #05966933; color: var(--ok); }
+.tag-func { background: #2563eb33; color: var(--accent); }
+.tag-cmd { background: #d9770633; color: var(--warn); }
+.tag-endpoint { background: #dc262633; color: var(--err); }
+.tag-hook { background: #db277733; color: #f472b6; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 16px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin: 16px 0; }
+.arrow-chain { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent); padding: 10px; background: rgba(56,189,248,0.06); border-radius: 6px; }
+code { font-family: 'Fira Code', 'Cascadia Code', monospace; background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 0.88em; }
+ul, ol { margin: 8px 0 8px 24px; color: var(--muted); }
+li { margin: 4px 0; }
+a { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.nav { position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.9rem; }
+.nav a { text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .container { padding: 16px; } h1 { font-size: 1.8rem; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Quantyx — Complete Call Flow &amp; Architecture Documentation</h1>
+<p class="subtitle">Generated from graphify knowledge graph: 596 nodes, 1561 edges, 30 communities. Commit: a9ef0e2</p>
+
+<div class="nav">
+    <a href="#overview">Architecture Overview</a>
+    <a href="#build-graph">Graph Build</a>
+    <a href="#cli-skills">CLI &amp; Skill Installers</a>
+    <a href="#tests-fixtures">Tests &amp; Fixtures</a>
+    <a href="#account-switcher-modal-primitives">Account Switcher &amp; Modal Primitives</a>
+    <a href="#user-settings-profile-state">User Settings &amp; Profile State</a>
+    <a href="#slideout-sheet-component">Slideout Sheet Component</a>
+    <a href="#dropdown-menu-primitives">Dropdown Menu Primitives</a>
+    <a href="#tabs-interface-primitives">Tabs Interface Primitives</a>
+    <a href="#react-error-boundary">React Error Boundary</a>
+    <a href="#vite-environment-typings">Vite Environment Typings</a>
+    <a href="#tailwind-css-configuration">Tailwind CSS Configuration</a>
+    <a href="#terminal-dark-mode-tokens">Terminal Dark Mode Tokens</a>
+    <a href="#matte-dark-mode-tokens">Matte Dark Mode Tokens</a>
+    <a href="#eslint-configuration">ESLint Configuration</a>
+    <a href="#other">Other</a>
+</div>
+
+<!-- ====== Architecture Overview ====== -->
+<h2 id="overview">1. Architecture Overview</h2>
+
+<div class="mermaid">
+
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    BUILD_GRAPH_321CBB04("Graph Build<br/><small>256 nodes</small>")
+    class BUILD_GRAPH_321CBB04 module;
+    CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>50 nodes</small>")
+    class CLI_SKILLS_9964CBB8 module;
+    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>196 nodes</small>")
+    class TESTS_FIXTURES_B84B1DCC module;
+    ACCOUNT_SWITCHER_MODAL_PRIMITIVES_53EB7B27("Account Switcher &amp; Modal Primitives<br/><small>21 nodes</small>")
+    class ACCOUNT_SWITCHER_MODAL_PRIMITIVES_53EB7B27 module;
+    USER_SETTINGS_PROFILE_STATE_28E776F9("User Settings &amp; Profile State<br/><small>16 nodes</small>")
+    class USER_SETTINGS_PROFILE_STATE_28E776F9 module;
+    SLIDEOUT_SHEET_COMPONENT_B5097DF7("Slideout Sheet Component<br/><small>16 nodes</small>")
+    class SLIDEOUT_SHEET_COMPONENT_B5097DF7 module;
+    DROPDOWN_MENU_PRIMITIVES_19CABAC4("Dropdown Menu Primitives<br/><small>12 nodes</small>")
+    class DROPDOWN_MENU_PRIMITIVES_19CABAC4 module;
+    TABS_INTERFACE_PRIMITIVES_6B3B412E("Tabs Interface Primitives<br/><small>11 nodes</small>")
+    class TABS_INTERFACE_PRIMITIVES_6B3B412E module;
+    REACT_ERROR_BOUNDARY_0996818A("React Error Boundary<br/><small>9 nodes</small>")
+    class REACT_ERROR_BOUNDARY_0996818A module;
+    VITE_ENVIRONMENT_TYPINGS_5CD316BD("Vite Environment Typings<br/><small>3 nodes</small>")
+    class VITE_ENVIRONMENT_TYPINGS_5CD316BD module;
+    TAILWIND_CSS_CONFIGURATION_A96AF81E("Tailwind CSS Configuration<br/><small>2 nodes</small>")
+    class TAILWIND_CSS_CONFIGURATION_A96AF81E module;
+    TERMINAL_DARK_MODE_TOKENS_E44D72F4("Terminal Dark Mode Tokens<br/><small>1 nodes</small>")
+    class TERMINAL_DARK_MODE_TOKENS_E44D72F4 module;
+    MATTE_DARK_MODE_TOKENS_CC5DFEFB("Matte Dark Mode Tokens<br/><small>1 nodes</small>")
+    class MATTE_DARK_MODE_TOKENS_CC5DFEFB module;
+    ESLINT_CONFIGURATION_D503B6EF("ESLint Configuration<br/><small>1 nodes</small>")
+    class ESLINT_CONFIGURATION_D503B6EF module;
+    OTHER_D0941E68("Other<br/><small>1 nodes</small>")
+    class OTHER_D0941E68 module;
+    TESTS_FIXTURES_B84B1DCC -->|imports x86| BUILD_GRAPH_321CBB04
+    BUILD_GRAPH_321CBB04 -->|imports x54| TESTS_FIXTURES_B84B1DCC
+    TESTS_FIXTURES_B84B1DCC -->|calls x50| CLI_SKILLS_9964CBB8
+    BUILD_GRAPH_321CBB04 -->|calls x43| CLI_SKILLS_9964CBB8
+    CLI_SKILLS_9964CBB8 -->|imports x22| TESTS_FIXTURES_B84B1DCC
+    CLI_SKILLS_9964CBB8 -->|imports x15| BUILD_GRAPH_321CBB04
+    TESTS_FIXTURES_B84B1DCC -->|imports x12| USER_SETTINGS_PROFILE_STATE_28E776F9
+    USER_SETTINGS_PROFILE_STATE_28E776F9 -->|calls x11| CLI_SKILLS_9964CBB8
+    ACCOUNT_SWITCHER_MODAL_PRIMITIVES_53EB7B27 -->|imports x11| TESTS_FIXTURES_B84B1DCC
+    TESTS_FIXTURES_B84B1DCC -->|imports x10| ACCOUNT_SWITCHER_MODAL_PRIMITIVES_53EB7B27
+    USER_SETTINGS_PROFILE_STATE_28E776F9 -->|imports x9| TESTS_FIXTURES_B84B1DCC
+    ACCOUNT_SWITCHER_MODAL_PRIMITIVES_53EB7B27 -->|calls x9| CLI_SKILLS_9964CBB8
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h4>Architecture Layers</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
+      <tr><td>Graph Build</td><td>256</td><td><code>1, 2, 6, 7, 8, 10, 17, 18, 20, 26</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>50</td><td><code>4, 15</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>196</td><td><code>0, 3, 5, 12, 21, 22</code></td></tr><tr><td>Account Switcher &amp; Modal Primitives</td><td>21</td><td><code>9</code></td></tr><tr><td>User Settings &amp; Profile State</td><td>16</td><td><code>11</code></td></tr><tr><td>Slideout Sheet Component</td><td>16</td><td><code>13</code></td></tr><tr><td>Dropdown Menu Primitives</td><td>12</td><td><code>14</code></td></tr><tr><td>Tabs Interface Primitives</td><td>11</td><td><code>16</code></td></tr><tr><td>React Error Boundary</td><td>9</td><td><code>19</code></td></tr><tr><td>Vite Environment Typings</td><td>3</td><td><code>23</code></td></tr><tr><td>Tailwind CSS Configuration</td><td>2</td><td><code>24</code></td></tr><tr><td>Terminal Dark Mode Tokens</td><td>1</td><td><code>25</code></td></tr><tr><td>Matte Dark Mode Tokens</td><td>1</td><td><code>27</code></td></tr><tr><td>ESLint Configuration</td><td>1</td><td><code>28</code></td></tr><tr><td>Other</td><td>1</td><td><code>29</code></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Core Flow</h4>
+    <div class="arrow-chain">Vite Environment Typings -&gt; Graph Build -&gt; Tests &amp; Fixtures -&gt; CLI &amp; Skill Installers -&gt; Account Switcher &amp; Modal Primitives -&gt; User Settings &amp; Profile State -&gt; Slideout Sheet Component</div>
+  </div>
+</div>
+<div class="grid">
+  <div class="card">
+    <h4>Graph Report Highlights</h4>
+    <ul>
+      <li>596 nodes · 1561 edges · 30 communities (20 shown, 10 thin omitted)</li>
+      <li>Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.88)</li>
+      <li>Token cost: 0 input · 0 output</li>
+      <li>1. `cn()` - 117 edges</li>
+      <li>2. `react` - 49 edges</li>
+      <li>3. `useUiStore` - 46 edges</li>
+    </ul>
+  </div>
+</div>
+<hr>
+<!-- ====== 2. Graph Build ====== -->
+<h2 id="build-graph">2. Graph Build</h2>
+<p>Graph Build groups implementation around components, packagejson, trades, landing, mostly in package.json, tsconfig.json, tsconfig.node.json. This section covers 256 nodes and 424 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Graph Build (256 nodes, 424 edges)
+    subgraph build_graph_components_dashboard_DashboardCharts_921ebf73["components/dashboard/DashboardCharts.tsx"]
+        src_components_dashboard_dashboardcharts_13a27ee3("DashboardCharts.tsx")
+        src_components_dashboard_dashboardcharts_setuppe_9ea2f157("SetupPerformanceChart()<br/><small>components/dashboard/DashboardCharts.tsx</small>")
+        src_components_dashboard_dashboardcharts_setupto_53056a8d("SetupTooltip()<br/><small>components/dashboard/DashboardCharts.tsx</small>")
+    end
+    subgraph build_graph_components_trades_InlineTradeCells_t_626961f9["components/trades/InlineTradeCells.tsx"]
+        src_components_trades_inlinetradecells_emotionce_9cfdeac2("EmotionCell()<br/><small>components/trades/InlineTradeCells.tsx</small>")
+        src_components_trades_inlinetradecells_execution_b861c66f("ExecutionRating()<br/><small>components/trades/InlineTradeCells.tsx</small>")
+        src_components_trades_inlinetradecells_playbookc_f2326b39("PlaybookCell()<br/><small>components/trades/InlineTradeCells.tsx</small>")
+    end
+    subgraph build_graph_src_lib_playbooks_ts_2683b462["src/lib/playbooks.ts"]
+        src_lib_playbooks_getplaybookbyid_0b8a3bd8("getPlaybookById()<br/><small>src/lib/playbooks.ts</small>")
+        src_lib_playbooks_getplaybookbytag_9bd8957a("getPlaybookByTag()<br/><small>src/lib/playbooks.ts</small>")
+        src_lib_playbooks_getemotiontag_a9d70ce8("getEmotionTag()<br/><small>src/lib/playbooks.ts</small>")
+    end
+    subgraph build_graph_components_trades_MarkdownNote_tsx_02902705["components/trades/MarkdownNote.tsx"]
+        src_components_trades_markdownnote_markdownnote_ae4ef7e0("MarkdownNote()<br/><small>components/trades/MarkdownNote.tsx</small>")
+        src_components_trades_markdownnote_renderformatt_72c39a80("renderFormattedText()<br/><small>components/trades/MarkdownNote.tsx</small>")
+    end
+    subgraph build_graph_components_trades_TradeDataGrid_tsx_51cf0ea0["components/trades/TradeDataGrid.tsx"]
+        src_components_trades_tradedatagrid_ecc33e18("TradeDataGrid.tsx")
+        src_components_trades_tradedatagrid_tradedatagri_bdb904cf("TradeDataGrid()<br/><small>components/trades/TradeDataGrid.tsx</small>")
+    end
+    src_components_trades_sharetradecardmodal_sharet_df343f44("ShareTradeCardModal()<br/><small>components/trades/ShareTradeCardModal.tsx</small>")
+    src_components_trades_tradedetaildrawer_ac3d73e0("TradeDetailDrawer.tsx")
+    package_582681c2("package.json")
+    src_hooks_usetrades_useupdatetrade_cb97c74d("useUpdateTrade()<br/><small>src/hooks/useTrades.ts</small>")
+    src_pages_landingpage_04e53f4b("LandingPage.tsx")
+    src_components_dashboard_dashboardcharts_setuppe_9ea2f157 -->|calls| src_lib_playbooks_getplaybookbyid_0b8a3bd8
+    src_components_dashboard_dashboardcharts_setuppe_9ea2f157 -->|calls| src_lib_playbooks_getplaybookbytag_9bd8957a
+    src_components_dashboard_dashboardcharts_setuppe_9ea2f157 -->|calls| src_components_dashboard_dashboardcharts_setupto_53056a8d
+    src_components_trades_inlinetradecells_emotionce_9cfdeac2 -->|calls| src_hooks_usetrades_useupdatetrade_cb97c74d
+    src_components_trades_inlinetradecells_emotionce_9cfdeac2 -->|calls| src_lib_playbooks_getemotiontag_a9d70ce8
+    src_components_trades_inlinetradecells_execution_b861c66f -->|calls| src_hooks_usetrades_useupdatetrade_cb97c74d
+    src_components_trades_inlinetradecells_playbookc_f2326b39 -->|calls| src_hooks_usetrades_useupdatetrade_cb97c74d
+    src_components_trades_markdownnote_markdownnote_ae4ef7e0 -->|calls| src_components_trades_markdownnote_renderformatt_72c39a80
+    src_components_trades_sharetradecardmodal_sharet_df343f44 -->|calls| src_lib_playbooks_getplaybookbyid_0b8a3bd8
+    src_components_trades_sharetradecardmodal_sharet_df343f44 -->|calls| src_lib_playbooks_getplaybookbytag_9bd8957a
+    src_components_trades_tradedatagrid_tradedatagri_bdb904cf -->|calls| src_components_trades_inlinetradecells_playbookc_f2326b39
+    src_components_trades_tradedatagrid_tradedatagri_bdb904cf -->|calls| src_components_trades_inlinetradecells_emotionce_9cfdeac2
+    src_components_trades_tradedatagrid_tradedatagri_bdb904cf -->|calls| src_components_trades_sharetradecardmodal_sharet_df343f44
+    src_components_dashboard_dashboardcharts_13a27ee3 -->|imports| src_lib_playbooks_getplaybookbyid_0b8a3bd8
+    src_components_dashboard_dashboardcharts_13a27ee3 -->|imports| src_lib_playbooks_getplaybookbytag_9bd8957a
+    src_components_trades_tradedatagrid_ecc33e18 -->|imports| src_components_trades_sharetradecardmodal_sharet_df343f44
+    src_components_trades_tradedatagrid_ecc33e18 -->|imports| src_components_trades_inlinetradecells_emotionce_9cfdeac2
+    src_components_trades_tradedatagrid_ecc33e18 -->|imports| src_components_trades_inlinetradecells_playbookc_f2326b39
+    src_components_trades_tradedatagrid_ecc33e18 -->|imports| src_components_trades_tradedetaildrawer_ac3d73e0
+    src_components_trades_tradedetaildrawer_ac3d73e0 -->|imports| src_components_trades_markdownnote_markdownnote_ae4ef7e0
+    src_components_trades_tradedetaildrawer_ac3d73e0 -->|imports| src_components_trades_inlinetradecells_emotionce_9cfdeac2
+    src_components_trades_tradedetaildrawer_ac3d73e0 -->|imports| src_components_trades_inlinetradecells_execution_b861c66f
+    src_components_trades_tradedetaildrawer_ac3d73e0 -->|imports| src_components_trades_inlinetradecells_playbookc_f2326b39
+    src_components_trades_tradedetaildrawer_ac3d73e0 -->|imports| src_hooks_usetrades_useupdatetrade_cb97c74d
+    %% Omitted for readability: 238 nodes, 0 edges
+    class src_components_dashboard_dashboardcharts_13a27ee3 ui;
+    class src_components_dashboard_dashboardcharts_setuppe_9ea2f157 ui;
+    class src_components_dashboard_dashboardcharts_setupto_53056a8d ui;
+    class src_components_trades_inlinetradecells_emotionce_9cfdeac2 ui;
+    class src_components_trades_inlinetradecells_execution_b861c66f ui;
+    class src_components_trades_inlinetradecells_playbookc_f2326b39 ui;
+    class src_lib_playbooks_getplaybookbyid_0b8a3bd8 function;
+    class src_lib_playbooks_getplaybookbytag_9bd8957a function;
+    class src_lib_playbooks_getemotiontag_a9d70ce8 function;
+    class src_components_trades_markdownnote_markdownnote_ae4ef7e0 ui;
+    class src_components_trades_markdownnote_renderformatt_72c39a80 ui;
+    class src_components_trades_tradedatagrid_ecc33e18 ui;
+    class src_components_trades_tradedatagrid_tradedatagri_bdb904cf ui;
+    class src_components_trades_sharetradecardmodal_sharet_df343f44 ui;
+    class src_components_trades_tradedetaildrawer_ac3d73e0 ui;
+    class package_582681c2 function;
+    class src_hooks_usetrades_useupdatetrade_cb97c74d ui;
+    class src_pages_landingpage_04e53f4b ui;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>CalendarHeatmapProps</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>CalendarHeatmapProps node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>SelectedDayData</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SelectedDayData node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>SetupData</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SetupData node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>SetupPerformanceChartProps</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SetupPerformanceChartProps node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>SetupSortMode</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SetupSortMode node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>DataPoint</code><br><small style="color:var(--muted)">components/dashboard/EquityCurveChart.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DataPoint node in components/dashboard/EquityCurveChart.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>EquityCurveChartProps</code><br><small style="color:var(--muted)">components/dashboard/EquityCurveChart.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>EquityCurveChartProps node in components/dashboard/EquityCurveChart.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>EquityViewMode</code><br><small style="color:var(--muted)">components/dashboard/EquityCurveChart.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>EquityViewMode node in components/dashboard/EquityCurveChart.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>RecentTradesWidgetProps</code><br><small style="color:var(--muted)">components/dashboard/RecentTradesWidget.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>RecentTradesWidgetProps node in components/dashboard/RecentTradesWidget.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>EmotionCellProps</code><br><small style="color:var(--muted)">components/trades/InlineTradeCells.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>EmotionCellProps node in components/trades/InlineTradeCells.tsx.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>ExecutionRatingProps</code><br><small style="color:var(--muted)">components/trades/InlineTradeCells.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ExecutionRatingProps node in components/trades/InlineTradeCells.tsx.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>PlaybookCellProps</code><br><small style="color:var(--muted)">components/trades/InlineTradeCells.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>PlaybookCellProps node in components/trades/InlineTradeCells.tsx.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>MarkdownNoteProps</code><br><small style="color:var(--muted)">components/trades/MarkdownNote.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Exports documentation data to a target format.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>ScreenshotLightboxProps</code><br><small style="color:var(--muted)">components/trades/ScreenshotLightbox.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ScreenshotLightboxProps node in components/trades/ScreenshotLightbox.tsx.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>CardTheme</code><br><small style="color:var(--muted)">components/trades/ShareTradeCardModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>CardTheme node in components/trades/ShareTradeCardModal.tsx.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>MetricMode</code><br><small style="color:var(--muted)">components/trades/ShareTradeCardModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>MetricMode node in components/trades/ShareTradeCardModal.tsx.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>ShareTradeCardModalProps</code><br><small style="color:var(--muted)">components/trades/ShareTradeCardModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ShareTradeCardModalProps node in components/trades/ShareTradeCardModal.tsx.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>TradeDataGridProps</code><br><small style="color:var(--muted)">components/trades/TradeDataGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TradeDataGridProps node in components/trades/TradeDataGrid.tsx.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>TradeDetailDrawerProps</code><br><small style="color:var(--muted)">components/trades/TradeDetailDrawer.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TradeDetailDrawerProps node in components/trades/TradeDetailDrawer.tsx.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>FilterValues</code><br><small style="color:var(--muted)">components/trades/TradeFilterBar.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>TradeDataGrid.tsx</code><br><small style="color:var(--muted)">components/trades/TradeDataGrid.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>FilterValues node in components/trades/TradeFilterBar.tsx.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>TradeFilterBarProps</code><br><small style="color:var(--muted)">components/trades/TradeFilterBar.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TradeFilterBarProps node in components/trades/TradeFilterBar.tsx.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>EmotionTagItem</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Turns a local path or remote repository into analysis context.</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>PlaybookItem</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>PlaybooksPage.tsx</code><br><small style="color:var(--muted)">src/pages/PlaybooksPage.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>PlaybookItem node in src/lib/playbooks.ts.</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>TradeDirection</code><br><small style="color:var(--muted)">src/store/useFilterStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>CommandPalette.tsx</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small><br><code>TradeFilterBar.tsx</code><br><small style="color:var(--muted)">components/trades/TradeFilterBar.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>TradeDirection node in src/store/useFilterStore.ts.</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>UiState</code><br><small style="color:var(--muted)">src/store/useUiStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>UiState node in src/store/useUiStore.ts.</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>Trade</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br><code>DashboardCharts.tsx</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small><br><code>EquityCurveChart.tsx</code><br><small style="color:var(--muted)">components/dashboard/EquityCurveChart.tsx</small><br>+12 more</td>
+  <td>No direct outbound edge</td>
+  <td>Trade node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>getColorForPnl()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>CalendarHeatmap()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>getColorForPnl() node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>SetupPerformanceChart()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>getPlaybookById()</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small><br><code>getPlaybookByTag()</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small><br>+1 more</td>
+  <td>SetupPerformanceChart() node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>SetupTooltip()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SetupPerformanceChart()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useUiStore</code><br><small style="color:var(--muted)">src/store/useUiStore.ts</small></td>
+  <td>SetupTooltip() node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>EmotionCell()</code><br><small style="color:var(--muted)">components/trades/InlineTradeCells.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>TradeDataGrid()</code><br><small style="color:var(--muted)">components/trades/TradeDataGrid.tsx</small><br><code>TradeDataGrid.tsx</code><br><small style="color:var(--muted)">components/trades/TradeDataGrid.tsx</small><br><code>TradeDetailDrawer()</code><br><small style="color:var(--muted)">components/trades/TradeDetailDrawer.tsx</small><br>+1 more</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>getEmotionTag()</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small><br><code>useUpdateTrade()</code><br><small style="color:var(--muted)">src/hooks/useTrades.ts</small></td>
+  <td>EmotionCell() node in components/trades/InlineTradeCells.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>package.json</code></td><td>98 nodes</td></tr>
+<tr><td><code>tsconfig.json</code></td><td>21 nodes</td></tr>
+<tr><td><code>tsconfig.node.json</code></td><td>11 nodes</td></tr>
+<tr><td><code>components/dashboard/DashboardCharts.tsx</code></td><td>10 nodes</td></tr>
+<tr><td><code>components/trades/TradeDataGrid.tsx</code></td><td>8 nodes</td></tr>
+<tr><td><code>src/lib/playbooks.ts</code></td><td>8 nodes</td></tr>
+<tr><td><code>components/trades/InlineTradeCells.tsx</code></td><td>7 nodes</td></tr>
+<tr><td><code>ui/aceternity/BentoGrid.tsx</code></td><td>6 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x181, imports x97, imports x76, calls x43. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 3. CLI & Skill Installers ====== -->
+<h2 id="cli-skills">3. CLI &amp; Skill Installers</h2>
+<p>CLI &amp; Skill Installers groups implementation around components, commandtsx, useuserrolets, hooks, mostly in components/ui/command.tsx, src/hooks/useUserRole.ts, components/layout/ProtectedRoute.tsx. This section covers 50 nodes and 97 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: CLI &amp; Skill Installers (50 nodes, 97 edges)
+    subgraph cli_skills_components_ui_command_tsx_200d5c52["components/ui/command.tsx"]
+        src_components_ui_command_command_d433ff67("Command()<br/><small>components/ui/command.tsx</small>")
+        src_components_ui_command_commanddialog_1e8f312b("CommandDialog()<br/><small>components/ui/command.tsx</small>")
+        src_components_ui_command_commandshortcut_1f234e6c("CommandShortcut()<br/><small>components/ui/command.tsx</small>")
+    end
+    subgraph cli_skills_src_hooks_useUserRole_ts_66542975["src/hooks/useUserRole.ts"]
+        src_hooks_useuserrole_useuserrole_26e75fad("useUserRole()<br/><small>src/hooks/useUserRole.ts</small>")
+        src_hooks_useuserrole_getrolelabel_8d9db299("getRoleLabel()<br/><small>src/hooks/useUserRole.ts</small>")
+        src_hooks_useuserrole_useclerkusersafe_cc47891e("useClerkUserSafe()<br/><small>src/hooks/useUserRole.ts</small>")
+    end
+    subgraph cli_skills_components_auth_RoleGuard_tsx_d771b327["components/auth/RoleGuard.tsx"]
+        src_components_auth_roleguard_ac78ec11("RoleGuard.tsx")
+        src_components_auth_roleguard_roleguard_d31c7ba1("RoleGuard()<br/><small>components/auth/RoleGuard.tsx</small>")
+    end
+    subgraph cli_skills_src_App_tsx_6e733dc5["src/App.tsx"]
+        src_app_46efd68e("App.tsx")
+        src_app_app_f316b20d("App()<br/><small>src/App.tsx</small>")
+    end
+    subgraph cli_skills_src_pages_UsersPage_tsx_6040ab4b["src/pages/UsersPage.tsx"]
+        src_pages_userspage_19d1d0dd("UsersPage.tsx")
+        src_pages_userspage_userspage_10c8c22c("UsersPage()<br/><small>src/pages/UsersPage.tsx</small>")
+    end
+    src_components_layout_protectedroute_protectedro_335c1366("ProtectedRoute()<br/><small>components/layout/ProtectedRoute.tsx</small>")
+    src_lib_cn_cn_0db64854("cn()<br/><small>src/lib/cn.ts</small>")
+    src_main_3231ff52("main.tsx")
+    src_pages_signinpage_signinpage_67b2ea07("SignInPage()<br/><small>src/pages/SignInPage.tsx</small>")
+    src_pages_signuppage_signuppage_e3cfb5b4("SignUpPage()<br/><small>src/pages/SignUpPage.tsx</small>")
+    tests_unit_auth_roles_test_15fd9979("auth-roles.test.ts")
+    src_components_ui_command_command_d433ff67 -->|calls| src_lib_cn_cn_0db64854
+    src_components_ui_command_commanddialog_1e8f312b -->|calls| src_components_ui_command_command_d433ff67
+    src_components_ui_command_commandshortcut_1f234e6c -->|calls| src_lib_cn_cn_0db64854
+    src_app_app_f316b20d -->|calls| src_pages_signinpage_signinpage_67b2ea07
+    src_app_app_f316b20d -->|calls| src_pages_signuppage_signuppage_e3cfb5b4
+    src_app_app_f316b20d -->|calls| src_components_layout_protectedroute_protectedro_335c1366
+    src_app_app_f316b20d -->|calls| src_components_auth_roleguard_roleguard_d31c7ba1
+    src_app_app_f316b20d -->|calls| src_pages_userspage_userspage_10c8c22c
+    src_components_auth_roleguard_roleguard_d31c7ba1 -->|calls| src_hooks_useuserrole_useuserrole_26e75fad
+    src_hooks_useuserrole_useuserrole_26e75fad -->|calls| src_hooks_useuserrole_getrolelabel_8d9db299
+    src_hooks_useuserrole_useuserrole_26e75fad -->|calls| src_hooks_useuserrole_useclerkusersafe_cc47891e
+    src_pages_userspage_userspage_10c8c22c -->|calls| src_lib_cn_cn_0db64854
+    src_pages_userspage_userspage_10c8c22c -->|calls| src_hooks_useuserrole_useuserrole_26e75fad
+    src_app_46efd68e -->|imports| src_pages_signinpage_signinpage_67b2ea07
+    src_app_46efd68e -->|imports| src_pages_signuppage_signuppage_e3cfb5b4
+    src_app_46efd68e -->|imports| src_components_layout_protectedroute_protectedro_335c1366
+    src_app_46efd68e -->|imports| src_components_auth_roleguard_roleguard_d31c7ba1
+    src_app_46efd68e -->|imports| src_pages_userspage_userspage_10c8c22c
+    src_app_46efd68e -->|imports| src_components_auth_roleguard_ac78ec11
+    src_app_46efd68e -->|imports| src_pages_userspage_19d1d0dd
+    src_components_auth_roleguard_ac78ec11 -->|imports| src_hooks_useuserrole_useuserrole_26e75fad
+    src_main_3231ff52 -->|imports| src_app_app_f316b20d
+    src_main_3231ff52 -->|imports| src_app_46efd68e
+    src_pages_userspage_19d1d0dd -->|imports| src_hooks_useuserrole_useuserrole_26e75fad
+    %% Omitted for readability: 32 nodes, 2 edges
+    class src_components_ui_command_command_d433ff67 entry;
+    class src_components_ui_command_commanddialog_1e8f312b entry;
+    class src_components_ui_command_commandshortcut_1f234e6c entry;
+    class src_hooks_useuserrole_useuserrole_26e75fad ui;
+    class src_hooks_useuserrole_getrolelabel_8d9db299 function;
+    class src_hooks_useuserrole_useclerkusersafe_cc47891e ui;
+    class src_components_auth_roleguard_ac78ec11 ui;
+    class src_components_auth_roleguard_roleguard_d31c7ba1 ui;
+    class src_app_46efd68e ui;
+    class src_app_app_f316b20d ui;
+    class src_pages_userspage_19d1d0dd ui;
+    class src_pages_userspage_userspage_10c8c22c ui;
+    class src_components_layout_protectedroute_protectedro_335c1366 api;
+    class src_lib_cn_cn_0db64854 function;
+    class src_main_3231ff52 ui;
+    class src_pages_signinpage_signinpage_67b2ea07 ui;
+    class src_pages_signuppage_signuppage_e3cfb5b4 ui;
+    class tests_unit_auth_roles_test_15fd9979 test;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>RoleGuardProps</code><br><small style="color:var(--muted)">components/auth/RoleGuard.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>RoleGuardProps node in components/auth/RoleGuard.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>ProtectedRouteProps</code><br><small style="color:var(--muted)">components/layout/ProtectedRoute.tsx</small></td>
+  <td><span class="tag tag-endpoint">API</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ProtectedRouteProps node in components/layout/ProtectedRoute.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>UserRoleResult</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>UserRoleResult node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>ManagedUser</code><br><small style="color:var(--muted)">src/types/auth.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>UsersPage.tsx</code><br><small style="color:var(--muted)">src/pages/UsersPage.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>ManagedUser node in src/types/auth.ts.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>UserRole</code><br><small style="color:var(--muted)">src/types/auth.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>RoleGuard.tsx</code><br><small style="color:var(--muted)">components/auth/RoleGuard.tsx</small><br><code>UsersPage.tsx</code><br><small style="color:var(--muted)">src/pages/UsersPage.tsx</small><br><code>useUserRole.ts</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>UserRole node in src/types/auth.ts.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>UserRoleMetadata</code><br><small style="color:var(--muted)">src/types/auth.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>UserRoleMetadata node in src/types/auth.ts.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>main.tsx</code><br><small style="color:var(--muted)">src/main.tsx</small><br><code>RootApp()</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td><code>AnalyticsPage()</code><br><small style="color:var(--muted)">src/pages/AnalyticsPage.tsx</small><br><code>CalendarPage()</code><br><small style="color:var(--muted)">src/pages/CalendarPage.tsx</small><br><code>DashboardPage()</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br>+8 more</td>
+  <td>App() node in src/App.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>RoleGuard()</code><br><small style="color:var(--muted)">components/auth/RoleGuard.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small><br><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><code>Button</code><br><small style="color:var(--muted)">components/ui/button.tsx</small><br><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>RoleGuard() node in components/auth/RoleGuard.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>ProtectedRoute()</code><br><small style="color:var(--muted)">components/layout/ProtectedRoute.tsx</small></td>
+  <td><span class="tag tag-endpoint">API</span></td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small><br><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>ProtectedRoute() node in components/layout/ProtectedRoute.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>getRoleBadgeStyle()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>auth-roles.test.ts</code><br><small style="color:var(--muted)">tests/unit/auth-roles.test.ts</small><br><code>UsersPage()</code><br><small style="color:var(--muted)">src/pages/UsersPage.tsx</small><br><code>UsersPage.tsx</code><br><small style="color:var(--muted)">src/pages/UsersPage.tsx</small><br>+1 more</td>
+  <td>No direct outbound edge</td>
+  <td>getRoleBadgeStyle() node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>getRoleLabel()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>auth-roles.test.ts</code><br><small style="color:var(--muted)">tests/unit/auth-roles.test.ts</small><br><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>getRoleLabel() node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>parseUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>auth-roles.test.ts</code><br><small style="color:var(--muted)">tests/unit/auth-roles.test.ts</small><br><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>parseUserRole() node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>useClerkUserSafe()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>useClerkUserSafe() node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ClerkProfileContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br><code>ClerkUserAvatar()</code><br><small style="color:var(--muted)">components/layout/Topbar.tsx</small><br><code>DemoProfileContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br>+8 more</td>
+  <td><code>getRoleBadgeStyle()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small><br><code>getRoleLabel()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small><br><code>parseUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small><br>+1 more</td>
+  <td>useUserRole() node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>RootApp()</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td>RootApp() node in src/main.tsx.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>SignInPage()</code><br><small style="color:var(--muted)">src/pages/SignInPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small><br><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>SignUpPage()</code><br><small style="color:var(--muted)">src/pages/SignUpPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small><br><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>UsersPage()</code><br><small style="color:var(--muted)">src/pages/UsersPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App()</code><br><small style="color:var(--muted)">src/App.tsx</small><br><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>getRoleBadgeStyle()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small><br><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>main.tsx</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td><code>AnalyticsPage()</code><br><small style="color:var(--muted)">src/pages/AnalyticsPage.tsx</small><br><code>AnalyticsPage.tsx</code><br><small style="color:var(--muted)">src/pages/AnalyticsPage.tsx</small><br><code>CalendarPage()</code><br><small style="color:var(--muted)">src/pages/CalendarPage.tsx</small><br>+20 more</td>
+  <td>Module file in src/App.tsx.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>RoleGuard.tsx</code><br><small style="color:var(--muted)">components/auth/RoleGuard.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><code>auth.ts</code><br><small style="color:var(--muted)">src/types/auth.ts</small><br><code>Button</code><br><small style="color:var(--muted)">components/ui/button.tsx</small><br><code>button.tsx</code><br><small style="color:var(--muted)">components/ui/button.tsx</small><br>+6 more</td>
+  <td>Module file in components/auth/RoleGuard.tsx.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>ProtectedRoute.tsx</code><br><small style="color:var(--muted)">components/layout/ProtectedRoute.tsx</small></td>
+  <td><span class="tag tag-endpoint">API</span></td>
+  <td><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><code>@clerk/clerk-react</code><br><small style="color:var(--muted)">package.json</small><br><code>react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in components/layout/ProtectedRoute.tsx.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>HAS_CLERK</code><br><small style="color:var(--muted)">components/layout/ProtectedRoute.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>HAS_CLERK node in components/layout/ProtectedRoute.tsx.</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>useUserRole.ts</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>auth-roles.test.ts</code><br><small style="color:var(--muted)">tests/unit/auth-roles.test.ts</small><br><code>RoleGuard.tsx</code><br><small style="color:var(--muted)">components/auth/RoleGuard.tsx</small><br><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br>+3 more</td>
+  <td><code>@clerk/clerk-react</code><br><small style="color:var(--muted)">package.json</small><br><code>auth.ts</code><br><small style="color:var(--muted)">src/types/auth.ts</small><br><code>UserRole</code><br><small style="color:var(--muted)">src/types/auth.ts</small></td>
+  <td>Module file in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>HAS_CLERK</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>HAS_CLERK node in src/hooks/useUserRole.ts.</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>queryClient.ts</code><br><small style="color:var(--muted)">src/lib/queryClient.ts</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>main.tsx</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td><code>@tanstack/react-query</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in src/lib/queryClient.ts.</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>queryClient</code><br><small style="color:var(--muted)">src/lib/queryClient.ts</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>main.tsx</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>queryClient node in src/lib/queryClient.ts.</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>main.tsx</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>@clerk/clerk-react</code><br><small style="color:var(--muted)">package.json</small><br><code>@tanstack/react-query</code><br><small style="color:var(--muted)">package.json</small><br><code>@tanstack/react-query-devtools</code><br><small style="color:var(--muted)">package.json</small><br>+7 more</td>
+  <td>Module file in src/main.tsx.</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>darkAppearance</code><br><small style="color:var(--muted)">src/main.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>darkAppearance node in src/main.tsx.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>SignInPage.tsx</code><br><small style="color:var(--muted)">src/pages/SignInPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><code>@clerk/clerk-react</code><br><small style="color:var(--muted)">package.json</small><br><code>lucide-react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in src/pages/SignInPage.tsx.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>SignUpPage.tsx</code><br><small style="color:var(--muted)">src/pages/SignUpPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>App.tsx</code><br><small style="color:var(--muted)">src/App.tsx</small></td>
+  <td><code>@clerk/clerk-react</code><br><small style="color:var(--muted)">package.json</small><br><code>lucide-react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in src/pages/SignUpPage.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/ui/command.tsx</code></td><td>10 nodes</td></tr>
+<tr><td><code>src/hooks/useUserRole.ts</code></td><td>8 nodes</td></tr>
+<tr><td><code>components/layout/ProtectedRoute.tsx</code></td><td>4 nodes</td></tr>
+<tr><td><code>src/types/auth.ts</code></td><td>4 nodes</td></tr>
+<tr><td><code>package.json</code></td><td>3 nodes</td></tr>
+<tr><td><code>components/auth/RoleGuard.tsx</code></td><td>3 nodes</td></tr>
+<tr><td><code>src/main.tsx</code></td><td>3 nodes</td></tr>
+<tr><td><code>src/pages/UsersPage.tsx</code></td><td>3 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x32, calls x22, imports x21, imports x19. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 4. Tests & Fixtures ====== -->
+<h2 id="tests-fixtures">4. Tests &amp; Fixtures</h2>
+<p>Tests &amp; Fixtures groups implementation around components, tests, unit, dashboard, mostly in src/lib/math.ts, package.json, src/types/index.ts. This section covers 196 nodes and 537 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Tests &amp; Fixtures (196 nodes, 537 edges)
+    subgraph tests_fixtures_components_dashboard_KpiBentoGrid_b13fb569["components/dashboard/KpiBentoGrid.tsx"]
+        src_components_dashboard_kpibentogrid_institutio_b02fd0d2("InstitutionalGrid()<br/><small>components/dashboard/KpiBentoGrid.tsx</small>")
+        src_components_dashboard_kpibentogrid_privacyval_41fcb6e9("PrivacyValue()<br/><small>components/dashboard/KpiBentoGrid.tsx</small>")
+        src_components_dashboard_kpibentogrid_kpibentogr_41ae0471("KpiBentoGrid()<br/><small>components/dashboard/KpiBentoGrid.tsx</small>")
+        src_components_dashboard_kpibentogrid_revampedkp_17d1c3b0("RevampedKpiCard()<br/><small>components/dashboard/KpiBentoGrid.tsx</small>")
+    end
+    subgraph tests_fixtures_src_pages_DashboardPage_tsx_a71031f8["src/pages/DashboardPage.tsx"]
+        src_pages_dashboardpage_dd796e1f("DashboardPage.tsx")
+        src_pages_dashboardpage_dashboardpage_e8b96e78("DashboardPage()<br/><small>src/pages/DashboardPage.tsx</small>")
+    end
+    src_components_dashboard_dashboardcharts_calenda_2a11638e("CalendarHeatmap()<br/><small>components/dashboard/DashboardCharts.tsx</small>")
+    src_components_dashboard_equitycurvechart_equity_a3e18611("EquityCurveChart()<br/><small>components/dashboard/EquityCurveChart.tsx</small>")
+    src_components_dashboard_recenttradeswidget_rece_35ff6328("RecentTradesWidget()<br/><small>components/dashboard/RecentTradesWidget.tsx</small>")
+    src_components_layout_appshell_appshell_a57767f2("AppShell()<br/><small>components/layout/AppShell.tsx</small>")
+    src_components_layout_commandpalette_commandpale_6c0f89b2("CommandPalette()<br/><small>components/layout/CommandPalette.tsx</small>")
+    src_components_layout_sidebar_sidebar_fac0db4f("Sidebar()<br/><small>components/layout/Sidebar.tsx</small>")
+    src_components_layout_topbar_topbar_617b0daa("Topbar()<br/><small>components/layout/Topbar.tsx</small>")
+    src_components_trades_csvimportmodal_48371868("CsvImportModal.tsx")
+    src_components_trades_tradequickentrysheet_2da08a87("TradeQuickEntrySheet.tsx")
+    src_store_useuistore_useuistore_870f26a8("useUiStore<br/><small>src/store/useUiStore.ts</small>")
+    tests_unit_dashboard_charts_test_dc71e658("dashboard-charts.test.tsx")
+    tests_unit_math_test_19472ae1("math.test.ts")
+    src_components_dashboard_dashboardcharts_calenda_2a11638e -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_dashboard_equitycurvechart_equity_a3e18611 -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_dashboard_kpibentogrid_institutio_b02fd0d2 -->|calls| src_components_dashboard_kpibentogrid_privacyval_41fcb6e9
+    src_components_dashboard_kpibentogrid_kpibentogr_41ae0471 -->|calls| src_components_dashboard_kpibentogrid_institutio_b02fd0d2
+    src_components_dashboard_kpibentogrid_kpibentogr_41ae0471 -->|calls| src_components_dashboard_kpibentogrid_revampedkp_17d1c3b0
+    src_components_dashboard_kpibentogrid_privacyval_41fcb6e9 -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_dashboard_kpibentogrid_revampedkp_17d1c3b0 -->|calls| src_components_dashboard_kpibentogrid_privacyval_41fcb6e9
+    src_components_dashboard_recenttradeswidget_rece_35ff6328 -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_layout_appshell_appshell_a57767f2 -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_layout_appshell_appshell_a57767f2 -->|calls| src_components_layout_sidebar_sidebar_fac0db4f
+    src_components_layout_appshell_appshell_a57767f2 -->|calls| src_components_layout_topbar_topbar_617b0daa
+    src_components_layout_appshell_appshell_a57767f2 -->|calls| src_components_layout_commandpalette_commandpale_6c0f89b2
+    src_components_layout_commandpalette_commandpale_6c0f89b2 -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_layout_sidebar_sidebar_fac0db4f -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_components_layout_topbar_topbar_617b0daa -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_pages_dashboardpage_dashboardpage_e8b96e78 -->|calls| src_components_layout_appshell_appshell_a57767f2
+    src_pages_dashboardpage_dashboardpage_e8b96e78 -->|calls| src_components_dashboard_kpibentogrid_kpibentogr_41ae0471
+    src_pages_dashboardpage_dashboardpage_e8b96e78 -->|calls| src_components_dashboard_equitycurvechart_equity_a3e18611
+    src_pages_dashboardpage_dashboardpage_e8b96e78 -->|calls| src_components_dashboard_recenttradeswidget_rece_35ff6328
+    src_pages_dashboardpage_dashboardpage_e8b96e78 -->|calls| src_components_dashboard_dashboardcharts_calenda_2a11638e
+    src_pages_dashboardpage_dashboardpage_e8b96e78 -->|calls| src_store_useuistore_useuistore_870f26a8
+    src_pages_dashboardpage_dd796e1f -->|imports| src_components_layout_appshell_appshell_a57767f2
+    src_pages_dashboardpage_dd796e1f -->|imports| src_components_dashboard_kpibentogrid_kpibentogr_41ae0471
+    src_pages_dashboardpage_dd796e1f -->|imports| src_components_dashboard_equitycurvechart_equity_a3e18611
+    %% Omitted for readability: 178 nodes, 8 edges
+    class src_components_dashboard_kpibentogrid_institutio_b02fd0d2 ui;
+    class src_components_dashboard_kpibentogrid_privacyval_41fcb6e9 ui;
+    class src_components_dashboard_kpibentogrid_kpibentogr_41ae0471 ui;
+    class src_components_dashboard_kpibentogrid_revampedkp_17d1c3b0 ui;
+    class src_pages_dashboardpage_dd796e1f ui;
+    class src_pages_dashboardpage_dashboardpage_e8b96e78 ui;
+    class src_components_dashboard_dashboardcharts_calenda_2a11638e ui;
+    class src_components_dashboard_equitycurvechart_equity_a3e18611 ui;
+    class src_components_dashboard_recenttradeswidget_rece_35ff6328 ui;
+    class src_components_layout_appshell_appshell_a57767f2 ui;
+    class src_components_layout_commandpalette_commandpale_6c0f89b2 entry;
+    class src_components_layout_sidebar_sidebar_fac0db4f ui;
+    class src_components_layout_topbar_topbar_617b0daa ui;
+    class src_components_trades_csvimportmodal_48371868 ui;
+    class src_components_trades_tradequickentrysheet_2da08a87 ui;
+    class src_store_useuistore_useuistore_870f26a8 ui;
+    class tests_unit_dashboard_charts_test_dc71e658 test;
+    class tests_unit_math_test_19472ae1 test;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>KpiBentoGridProps</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>KpiBentoGridProps node in components/dashboard/KpiBentoGrid.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>RevampedKpiCardProps</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>RevampedKpiCardProps node in components/dashboard/KpiBentoGrid.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>AppShellProps</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>AppShellProps node in components/layout/AppShell.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>EquityViewMode</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>EquityViewMode node in src/pages/DashboardPage.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>TimeHorizon</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TimeHorizon node in src/pages/DashboardPage.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>DateRange</code><br><small style="color:var(--muted)">src/store/useFilterStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DateRange node in src/store/useFilterStore.ts.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>FilterState</code><br><small style="color:var(--muted)">src/store/useFilterStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>FilterState node in src/store/useFilterStore.ts.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>TradeOutcome</code><br><small style="color:var(--muted)">src/store/useFilterStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TradeOutcome node in src/store/useFilterStore.ts.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>AssetClass</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-async">Async</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>AssetClass node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>Playbook</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Playbook node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>PlaybookRule</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>PlaybookRule node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>TradeDirection</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TradeDirection node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>TradeFilters</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>useTrades.ts</code><br><small style="color:var(--muted)">src/hooks/useTrades.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>TradeFilters node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>TradeStats</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br><code>DashboardPage.tsx</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>KpiBentoGrid.tsx</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>TradeStats node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>TradeStatus</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TradeStatus node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>TradeUpdate</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>useTrades.ts</code><br><small style="color:var(--muted)">src/hooks/useTrades.ts</small></td>
+  <td>No direct outbound edge</td>
+  <td>TradeUpdate node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>TradingAccount</code><br><small style="color:var(--muted)">src/types/index.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>CommandPalette.tsx</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small><br><code>mockData.ts</code><br><small style="color:var(--muted)">src/lib/mockData.ts</small><br>+1 more</td>
+  <td>No direct outbound edge</td>
+  <td>TradingAccount node in src/types/index.ts.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>CalendarHeatmap()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>CalendarPage()</code><br><small style="color:var(--muted)">src/pages/CalendarPage.tsx</small><br><code>CalendarPage.tsx</code><br><small style="color:var(--muted)">src/pages/CalendarPage.tsx</small><br><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br>+2 more</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>getColorForPnl()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small><br><code>getPlaybookById()</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small><br>+2 more</td>
+  <td>CalendarHeatmap() node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>PlanComplianceChart()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br><code>DashboardPage()</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>DashboardPage.tsx</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>PlanComplianceChart() node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>TradeExecutionSetupsCard()</code><br><small style="color:var(--muted)">components/dashboard/DashboardCharts.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br><code>DashboardPage()</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>DashboardPage.tsx</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>TradeExecutionSetupsCard() node in components/dashboard/DashboardCharts.tsx.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>EquityCurveChart()</code><br><small style="color:var(--muted)">components/dashboard/EquityCurveChart.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br><code>DashboardPage()</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>DashboardPage.tsx</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useUiStore</code><br><small style="color:var(--muted)">src/store/useUiStore.ts</small></td>
+  <td>EquityCurveChart() node in components/dashboard/EquityCurveChart.tsx.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>InstitutionalGrid()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>KpiBentoGrid()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>PrivacyValue()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td>InstitutionalGrid() node in components/dashboard/KpiBentoGrid.tsx.</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>KpiBentoGrid()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>dashboard-charts.test.tsx</code><br><small style="color:var(--muted)">tests/unit/dashboard-charts.test.tsx</small><br><code>DashboardPage()</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>DashboardPage.tsx</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>InstitutionalGrid()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small><br><code>RevampedKpiCard()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td>KpiBentoGrid() node in components/dashboard/KpiBentoGrid.tsx.</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>PrivacyValue()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>InstitutionalGrid()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small><br><code>RevampedKpiCard()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useUiStore</code><br><small style="color:var(--muted)">src/store/useUiStore.ts</small></td>
+  <td>PrivacyValue() node in components/dashboard/KpiBentoGrid.tsx.</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>RevampedKpiCard()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>KpiBentoGrid()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>PrivacyValue()</code><br><small style="color:var(--muted)">components/dashboard/KpiBentoGrid.tsx</small></td>
+  <td>RevampedKpiCard() node in components/dashboard/KpiBentoGrid.tsx.</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>RecentTradesWidget()</code><br><small style="color:var(--muted)">components/dashboard/RecentTradesWidget.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>DashboardPage()</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>DashboardPage.tsx</code><br><small style="color:var(--muted)">src/pages/DashboardPage.tsx</small><br><code>recent-trades.test.tsx</code><br><small style="color:var(--muted)">tests/unit/recent-trades.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>getPlaybookById()</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small><br><code>getPlaybookByTag()</code><br><small style="color:var(--muted)">src/lib/playbooks.ts</small><br>+1 more</td>
+  <td>RecentTradesWidget() node in components/dashboard/RecentTradesWidget.tsx.</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>AppShell()</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AnalyticsPage()</code><br><small style="color:var(--muted)">src/pages/AnalyticsPage.tsx</small><br><code>AnalyticsPage.tsx</code><br><small style="color:var(--muted)">src/pages/AnalyticsPage.tsx</small><br><code>CalendarPage()</code><br><small style="color:var(--muted)">src/pages/CalendarPage.tsx</small><br>+7 more</td>
+  <td><code>CommandPalette()</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small><br><code>CsvImportModal()</code><br><small style="color:var(--muted)">components/trades/CsvImportModal.tsx</small><br><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small><br>+6 more</td>
+  <td>AppShell() node in components/layout/AppShell.tsx.</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>CommandPalette()</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>AppShell()</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>AppShell.tsx</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>power-user-ux.test.tsx</code><br><small style="color:var(--muted)">tests/unit/power-user-ux.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>getSavedAccounts()</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small><br><code>useFilterStore</code><br><small style="color:var(--muted)">src/store/useFilterStore.ts</small><br>+1 more</td>
+  <td>CommandPalette() node in components/layout/CommandPalette.tsx.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>getSavedAccounts()</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>CommandPalette()</code><br><small style="color:var(--muted)">components/layout/CommandPalette.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>getSavedAccounts() node in components/layout/CommandPalette.tsx.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>Sidebar()</code><br><small style="color:var(--muted)">components/layout/Sidebar.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AppShell()</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>AppShell.tsx</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>calendar-page.test.tsx</code><br><small style="color:var(--muted)">tests/unit/calendar-page.test.tsx</small><br>+2 more</td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useUiStore</code><br><small style="color:var(--muted)">src/store/useUiStore.ts</small><br>+1 more</td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>src/lib/math.ts</code></td><td>16 nodes</td></tr>
+<tr><td><code>package.json</code></td><td>13 nodes</td></tr>
+<tr><td><code>src/types/index.ts</code></td><td>11 nodes</td></tr>
+<tr><td><code>src/hooks/useTrades.ts</code></td><td>10 nodes</td></tr>
+<tr><td><code>components/ui/table.tsx</code></td><td>9 nodes</td></tr>
+<tr><td><code>components/dashboard/KpiBentoGrid.tsx</code></td><td>8 nodes</td></tr>
+<tr><td><code>components/trades/TradeQuickEntrySheet.tsx</code></td><td>7 nodes</td></tr>
+<tr><td><code>src/lib/supabase.ts</code></td><td>7 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: imports x148, imports x144, contains x121, calls x94. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 5. Account Switcher & Modal Primitives ====== -->
+<h2 id="account-switcher-modal-primitives">5. Account Switcher &amp; Modal Primitives</h2>
+<p>Account Switcher &amp; Modal Primitives groups implementation around components, dialogtsx, accountswitchertsx, layout, mostly in components/ui/dialog.tsx, components/layout/AccountSwitcher.tsx, components/ui/button.tsx. This section covers 21 nodes and 37 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Account Switcher &amp; Modal Primitives (21 nodes, 37 edges)
+    subgraph account_switcher_modal_primitives_components_ui_b89fda48["components/ui/dialog.tsx"]
+        src_components_ui_dialog_dialogclose_fbdf2e23("DialogClose()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogtrigger_17ce5d53("DialogTrigger()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialog_8a49ed4d("Dialog()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogcontent_c56cef91("DialogContent()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogheader_77a23a6c("DialogHeader()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogtitle_f2500125("DialogTitle()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogdescription_774d1dcf("DialogDescription()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogfooter_a4df7646("DialogFooter()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_usedialog_0ed345ee("useDialog()<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_63932705("dialog.tsx")
+        src_components_ui_dialog_dialogcontentprops_68d1aed7("DialogContentProps<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogcontext_7cc8a63f("DialogContext<br/><small>components/ui/dialog.tsx</small>")
+        src_components_ui_dialog_dialogcontextvalue_0bb6c172("DialogContextValue<br/><small>components/ui/dialog.tsx</small>")
+    end
+    subgraph account_switcher_modal_primitives_components_lay_7390db79["components/layout/AccountSwitcher.tsx"]
+        src_components_layout_accountswitcher_9c18e6ff("AccountSwitcher.tsx")
+        src_components_layout_accountswitcher_accountswi_acdc42d2("AccountSwitcher()<br/><small>components/layout/AccountSwitcher.tsx</small>")
+        src_components_layout_accountswitcher_getinitial_b061f34f("getInitialAccounts()<br/><small>components/layout/AccountSwitcher.tsx</small>")
+        src_components_layout_accountswitcher_accountswi_21d861c6("handleClickOutside()<br/><small>components/layout/AccountSwitcher.tsx</small>")
+    end
+    src_components_ui_button_button_a8929053("Button<br/><small>components/ui/button.tsx</small>")
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_dialog_dialog_8a49ed4d
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_dialog_dialogcontent_c56cef91
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_dialog_dialogheader_77a23a6c
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_dialog_dialogtitle_f2500125
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_dialog_dialogdescription_774d1dcf
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_dialog_dialogfooter_a4df7646
+    src_components_layout_accountswitcher_accountswi_acdc42d2 -->|calls| src_components_ui_button_button_a8929053
+    src_components_ui_dialog_dialogclose_fbdf2e23 -->|calls| src_components_ui_dialog_usedialog_0ed345ee
+    src_components_ui_dialog_dialogcontent_c56cef91 -->|calls| src_components_ui_dialog_usedialog_0ed345ee
+    src_components_ui_dialog_dialogtrigger_17ce5d53 -->|calls| src_components_ui_dialog_usedialog_0ed345ee
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_dialog_8a49ed4d
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_dialogcontent_c56cef91
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_dialogdescription_774d1dcf
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_dialogfooter_a4df7646
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_dialogheader_77a23a6c
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_dialogtitle_f2500125
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_button_button_a8929053
+    src_components_layout_accountswitcher_9c18e6ff -->|imports| src_components_ui_dialog_63932705
+    %% Omitted for readability: 3 nodes, 0 edges
+    class src_components_ui_dialog_dialogclose_fbdf2e23 ui;
+    class src_components_ui_dialog_dialogtrigger_17ce5d53 ui;
+    class src_components_ui_dialog_dialog_8a49ed4d ui;
+    class src_components_ui_dialog_dialogcontent_c56cef91 ui;
+    class src_components_ui_dialog_dialogheader_77a23a6c ui;
+    class src_components_ui_dialog_dialogtitle_f2500125 ui;
+    class src_components_ui_dialog_dialogdescription_774d1dcf ui;
+    class src_components_ui_dialog_dialogfooter_a4df7646 ui;
+    class src_components_ui_dialog_usedialog_0ed345ee ui;
+    class src_components_ui_dialog_63932705 ui;
+    class src_components_ui_dialog_dialogcontentprops_68d1aed7 ui;
+    class src_components_ui_dialog_dialogcontext_7cc8a63f ui;
+    class src_components_ui_dialog_dialogcontextvalue_0bb6c172 ui;
+    class src_components_layout_accountswitcher_9c18e6ff ui;
+    class src_components_layout_accountswitcher_accountswi_acdc42d2 ui;
+    class src_components_layout_accountswitcher_getinitial_b061f34f ui;
+    class src_components_layout_accountswitcher_accountswi_21d861c6 entry;
+    class src_components_ui_button_button_a8929053 ui;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>DialogContentProps</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DialogContentProps node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>DialogContextValue</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DialogContextValue node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>DialogProps</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DialogProps node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>DialogTriggerProps</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DialogTriggerProps node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>Sidebar()</code><br><small style="color:var(--muted)">components/layout/Sidebar.tsx</small><br><code>Sidebar.tsx</code><br><small style="color:var(--muted)">components/layout/Sidebar.tsx</small></td>
+  <td><code>Button</code><br><small style="color:var(--muted)">components/ui/button.tsx</small><br><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>Dialog()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small><br>+9 more</td>
+  <td>AccountSwitcher() node in components/layout/AccountSwitcher.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>handleClickOutside()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>handleClickOutside() node in components/layout/AccountSwitcher.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>getInitialAccounts()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>getInitialAccounts() node in components/layout/AccountSwitcher.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>Dialog()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>command.tsx</code><br><small style="color:var(--muted)">components/ui/command.tsx</small><br>+1 more</td>
+  <td>No direct outbound edge</td>
+  <td>Dialog() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>DialogClose()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>useDialog()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td>DialogClose() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>DialogContent()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>command.tsx</code><br><small style="color:var(--muted)">components/ui/command.tsx</small><br>+1 more</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>handleKeyDown()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small><br><code>useDialog()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td>DialogContent() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>handleKeyDown()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>DialogContent()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>handleKeyDown() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>DialogDescription()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>DialogDescription() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>DialogFooter()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>DialogFooter() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>DialogHeader()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>DialogHeader() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>DialogTitle()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>DialogTitle() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>DialogTrigger()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>useDialog()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td>DialogTrigger() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>useDialog()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>DialogClose()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small><br><code>DialogContent()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small><br><code>DialogTrigger()</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>useDialog() node in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>Sidebar.tsx</code><br><small style="color:var(--muted)">components/layout/Sidebar.tsx</small></td>
+  <td><code>Button</code><br><small style="color:var(--muted)">components/ui/button.tsx</small><br><code>button.tsx</code><br><small style="color:var(--muted)">components/ui/button.tsx</small><br><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br>+18 more</td>
+  <td>Module file in components/layout/AccountSwitcher.tsx.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>Button</code><br><small style="color:var(--muted)">components/ui/button.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher()</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>CsvImportModal()</code><br><small style="color:var(--muted)">components/trades/CsvImportModal.tsx</small><br>+6 more</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>Button node in components/ui/button.tsx.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>dialog.tsx</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AccountSwitcher.tsx</code><br><small style="color:var(--muted)">components/layout/AccountSwitcher.tsx</small><br><code>command.tsx</code><br><small style="color:var(--muted)">components/ui/command.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>cn.ts</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>lucide-react</code><br><small style="color:var(--muted)">package.json</small><br>+1 more</td>
+  <td>Module file in components/ui/dialog.tsx.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>DialogContext</code><br><small style="color:var(--muted)">components/ui/dialog.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DialogContext node in components/ui/dialog.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/ui/dialog.tsx</code></td><td>16 nodes</td></tr>
+<tr><td><code>components/layout/AccountSwitcher.tsx</code></td><td>4 nodes</td></tr>
+<tr><td><code>components/ui/button.tsx</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x16, calls x10, imports x7, indirect call x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 6. User Settings & Profile State ====== -->
+<h2 id="user-settings-profile-state">6. User Settings &amp; Profile State</h2>
+<p>User Settings &amp; Profile State groups implementation around components, settings, settingsmodaltsx, usesettingsstorets, mostly in components/settings/SettingsModal.tsx, src/store/useSettingsStore.ts, components/ui/switch.tsx. This section covers 16 nodes and 23 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: User Settings &amp; Profile State (16 nodes, 23 edges)
+    subgraph user_settings_profile_state_components_settings_e8461da9["components/settings/SettingsModal.tsx"]
+        src_components_settings_settingsmodal_1f47b307("SettingsModal.tsx")
+        src_components_settings_settingsmodal_settingsmo_2f53b079("SettingsModal()<br/><small>components/settings/SettingsModal.tsx</small>")
+        src_components_settings_settingsmodal_profiletab_ab0d88b2("ProfileTabContent()<br/><small>components/settings/SettingsModal.tsx</small>")
+        src_components_settings_settingsmodal_clerkprofi_614526f3("ClerkProfileContent()<br/><small>components/settings/SettingsModal.tsx</small>")
+        src_components_settings_settingsmodal_demoprofil_49d01694("DemoProfileContent()<br/><small>components/settings/SettingsModal.tsx</small>")
+        src_components_settings_settingsmodal_has_clerk_f6f60173("HAS_CLERK<br/><small>components/settings/SettingsModal.tsx</small>")
+        src_components_settings_settingsmodal_settingsta_85600409("SettingsTab<br/><small>components/settings/SettingsModal.tsx</small>")
+        src_components_settings_settingsmodal_settingsmo_78945991("handleKeyDown()<br/><small>components/settings/SettingsModal.tsx</small>")
+    end
+    subgraph user_settings_profile_state_src_store_useSetting_42b53ad1["src/store/useSettingsStore.ts"]
+        src_store_usesettingsstore_13e60712("useSettingsStore.ts")
+        src_store_usesettingsstore_usesettingsstore_a3b021f3("useSettingsStore<br/><small>src/store/useSettingsStore.ts</small>")
+        src_store_usesettingsstore_usersettings_7c31020e("UserSettings<br/><small>src/store/useSettingsStore.ts</small>")
+        src_store_usesettingsstore_default_settings_99ad2007("DEFAULT_SETTINGS<br/><small>src/store/useSettingsStore.ts</small>")
+    end
+    subgraph user_settings_profile_state_components_ui_switch_7fee13ed["components/ui/switch.tsx"]
+        src_components_ui_switch_switch_abedf93e("Switch()<br/><small>components/ui/switch.tsx</small>")
+        src_components_ui_switch_aec75d36("switch.tsx")
+        src_components_ui_switch_switchprops_725ffcf8("SwitchProps<br/><small>components/ui/switch.tsx</small>")
+    end
+    ref_zustand_a23643de("zustand<br/><small>package.json</small>")
+    src_components_settings_settingsmodal_profiletab_ab0d88b2 -->|calls| src_components_settings_settingsmodal_clerkprofi_614526f3
+    src_components_settings_settingsmodal_profiletab_ab0d88b2 -->|calls| src_components_settings_settingsmodal_demoprofil_49d01694
+    src_components_settings_settingsmodal_settingsmo_2f53b079 -->|calls| src_store_usesettingsstore_usesettingsstore_a3b021f3
+    src_components_settings_settingsmodal_settingsmo_2f53b079 -->|calls| src_components_ui_switch_switch_abedf93e
+    src_components_settings_settingsmodal_settingsmo_2f53b079 -->|calls| src_components_settings_settingsmodal_profiletab_ab0d88b2
+    src_components_settings_settingsmodal_1f47b307 -->|imports| src_store_usesettingsstore_usersettings_7c31020e
+    src_components_settings_settingsmodal_1f47b307 -->|imports| src_store_usesettingsstore_usesettingsstore_a3b021f3
+    src_components_settings_settingsmodal_1f47b307 -->|imports| src_components_ui_switch_switch_abedf93e
+    src_components_settings_settingsmodal_1f47b307 -->|imports| src_store_usesettingsstore_13e60712
+    src_components_settings_settingsmodal_1f47b307 -->|imports| src_components_ui_switch_aec75d36
+    src_store_usesettingsstore_13e60712 -->|imports| ref_zustand_a23643de
+    class src_components_settings_settingsmodal_1f47b307 ui;
+    class src_components_settings_settingsmodal_settingsmo_2f53b079 ui;
+    class src_components_settings_settingsmodal_profiletab_ab0d88b2 ui;
+    class src_components_settings_settingsmodal_clerkprofi_614526f3 ui;
+    class src_components_settings_settingsmodal_demoprofil_49d01694 ui;
+    class src_components_settings_settingsmodal_has_clerk_f6f60173 ui;
+    class src_components_settings_settingsmodal_settingsta_85600409 ui;
+    class src_components_settings_settingsmodal_settingsmo_78945991 ui;
+    class src_store_usesettingsstore_13e60712 ui;
+    class src_store_usesettingsstore_usesettingsstore_a3b021f3 ui;
+    class src_store_usesettingsstore_usersettings_7c31020e klass;
+    class src_store_usesettingsstore_default_settings_99ad2007 klass;
+    class src_components_ui_switch_switch_abedf93e ui;
+    class src_components_ui_switch_aec75d36 ui;
+    class src_components_ui_switch_switchprops_725ffcf8 ui;
+    class ref_zustand_a23643de function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>SettingsTab</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SettingsTab node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>SwitchProps</code><br><small style="color:var(--muted)">components/ui/switch.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SwitchProps node in components/ui/switch.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>UserSettings</code><br><small style="color:var(--muted)">src/store/useSettingsStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>UserSettings node in src/store/useSettingsStore.ts.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>ClerkProfileContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ProfileTabContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>ClerkProfileContent() node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>DemoProfileContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ProfileTabContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useUserRole()</code><br><small style="color:var(--muted)">src/hooks/useUserRole.ts</small></td>
+  <td>DemoProfileContent() node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>ProfileTabContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SettingsModal()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><code>ClerkProfileContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br><code>DemoProfileContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td>ProfileTabContent() node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>SettingsModal()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AppShell()</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>AppShell.tsx</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>renderModal()</code><br><small style="color:var(--muted)">tests/unit/settings-modal.test.tsx</small><br>+1 more</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>handleKeyDown()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br><code>ProfileTabContent()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br>+4 more</td>
+  <td>SettingsModal() node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>handleKeyDown()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SettingsModal()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>handleKeyDown() node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>Switch()</code><br><small style="color:var(--muted)">components/ui/switch.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SettingsModal()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>Switch() node in components/ui/switch.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AppShell.tsx</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>settings-modal.test.tsx</code><br><small style="color:var(--muted)">tests/unit/settings-modal.test.tsx</small></td>
+  <td><code>@clerk/clerk-react</code><br><small style="color:var(--muted)">package.json</small><br><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>cn.ts</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br>+16 more</td>
+  <td>Module file in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>HAS_CLERK</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>HAS_CLERK node in components/settings/SettingsModal.tsx.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>switch.tsx</code><br><small style="color:var(--muted)">components/ui/switch.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>cn.ts</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in components/ui/switch.tsx.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>useSettingsStore.ts</code><br><small style="color:var(--muted)">src/store/useSettingsStore.ts</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>settings-modal.test.tsx</code><br><small style="color:var(--muted)">tests/unit/settings-modal.test.tsx</small><br><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td><code>zustand</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in src/store/useSettingsStore.ts.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>DEFAULT_SETTINGS</code><br><small style="color:var(--muted)">src/store/useSettingsStore.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>settings-modal.test.tsx</code><br><small style="color:var(--muted)">tests/unit/settings-modal.test.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>DEFAULT_SETTINGS node in src/store/useSettingsStore.ts.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>useSettingsStore</code><br><small style="color:var(--muted)">src/store/useSettingsStore.ts</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>settings-modal.test.tsx</code><br><small style="color:var(--muted)">tests/unit/settings-modal.test.tsx</small><br><code>SettingsModal()</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small><br><code>SettingsModal.tsx</code><br><small style="color:var(--muted)">components/settings/SettingsModal.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>useSettingsStore node in src/store/useSettingsStore.ts.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>zustand</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>package.json</code><br><small style="color:var(--muted)">package.json</small><br><code>useFilterStore.ts</code><br><small style="color:var(--muted)">src/store/useFilterStore.ts</small><br><code>useSettingsStore.ts</code><br><small style="color:var(--muted)">src/store/useSettingsStore.ts</small><br>+1 more</td>
+  <td>No direct outbound edge</td>
+  <td>zustand node in package.json.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/settings/SettingsModal.tsx</code></td><td>8 nodes</td></tr>
+<tr><td><code>src/store/useSettingsStore.ts</code></td><td>4 nodes</td></tr>
+<tr><td><code>components/ui/switch.tsx</code></td><td>3 nodes</td></tr>
+<tr><td><code>package.json</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x11, calls x5, imports x3, imports x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 7. Slideout Sheet Component ====== -->
+<h2 id="slideout-sheet-component">7. Slideout Sheet Component</h2>
+<p>Slideout Sheet Component groups implementation around sheettsx, components, sheetcontentprops, sheetcontextvalue, mostly in components/ui/sheet.tsx. This section covers 16 nodes and 18 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Slideout Sheet Component (16 nodes, 18 edges)
+    src_components_ui_sheet_sheetclose_ad0433ba("SheetClose()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetcontent_8ff70ca9("SheetContent()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheettrigger_8329f5ec("SheetTrigger()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_usesheet_8f94915e("useSheet()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheet_99666386("Sheet()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetcontentprops_106ec7f2("SheetContentProps<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetcontext_a4580d26("SheetContext<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetcontextvalue_e4ea1177("SheetContextValue<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetdescription_034fa491("SheetDescription()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetfooter_9a5621c2("SheetFooter()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetheader_ded2a00a("SheetHeader()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetprops_fa4f7a2b("SheetProps<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheettitle_0fd301d2("SheetTitle()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheettriggerprops_ef41ad94("SheetTriggerProps<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_sheetcontent_handlekeydo_81fbc548("handleKeyDown()<br/><small>components/ui/sheet.tsx</small>")
+    src_components_ui_sheet_bce6ae05("sheet.tsx")
+    src_components_ui_sheet_sheetclose_ad0433ba -->|calls| src_components_ui_sheet_usesheet_8f94915e
+    src_components_ui_sheet_sheetcontent_8ff70ca9 -->|calls| src_components_ui_sheet_usesheet_8f94915e
+    src_components_ui_sheet_sheettrigger_8329f5ec -->|calls| src_components_ui_sheet_usesheet_8f94915e
+    class src_components_ui_sheet_sheetclose_ad0433ba ui;
+    class src_components_ui_sheet_sheetcontent_8ff70ca9 ui;
+    class src_components_ui_sheet_sheettrigger_8329f5ec ui;
+    class src_components_ui_sheet_usesheet_8f94915e ui;
+    class src_components_ui_sheet_sheet_99666386 ui;
+    class src_components_ui_sheet_sheetcontentprops_106ec7f2 ui;
+    class src_components_ui_sheet_sheetcontext_a4580d26 ui;
+    class src_components_ui_sheet_sheetcontextvalue_e4ea1177 ui;
+    class src_components_ui_sheet_sheetdescription_034fa491 ui;
+    class src_components_ui_sheet_sheetfooter_9a5621c2 ui;
+    class src_components_ui_sheet_sheetheader_ded2a00a ui;
+    class src_components_ui_sheet_sheetprops_fa4f7a2b ui;
+    class src_components_ui_sheet_sheettitle_0fd301d2 ui;
+    class src_components_ui_sheet_sheettriggerprops_ef41ad94 ui;
+    class src_components_ui_sheet_sheetcontent_handlekeydo_81fbc548 ui;
+    class src_components_ui_sheet_bce6ae05 ui;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>SheetContentProps</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SheetContentProps node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>SheetContextValue</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SheetContextValue node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>SheetProps</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SheetProps node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>SheetTriggerProps</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SheetTriggerProps node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>Sheet()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Sheet() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>SheetClose()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>useSheet()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td>SheetClose() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>SheetContent()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>handleKeyDown()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small><br><code>useSheet()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td>SheetContent() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>handleKeyDown()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SheetContent()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>handleKeyDown() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>SheetDescription()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>SheetDescription() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>SheetFooter()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>SheetFooter() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>SheetHeader()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>SheetHeader() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>SheetTitle()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>SheetTitle() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>SheetTrigger()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>useSheet()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td>SheetTrigger() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>useSheet()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>SheetClose()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small><br><code>SheetContent()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small><br><code>SheetTrigger()</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>useSheet() node in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>sheet.tsx</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>cn.ts</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>lucide-react</code><br><small style="color:var(--muted)">package.json</small><br>+1 more</td>
+  <td>Module file in components/ui/sheet.tsx.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>SheetContext</code><br><small style="color:var(--muted)">components/ui/sheet.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SheetContext node in components/ui/sheet.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/ui/sheet.tsx</code></td><td>16 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x14, calls x3, indirect call x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 8. Dropdown Menu Primitives ====== -->
+<h2 id="dropdown-menu-primitives">8. Dropdown Menu Primitives</h2>
+<p>Dropdown Menu Primitives groups implementation around dropdown, menutsx, components, dropdownmenucontentprops, mostly in components/ui/dropdown-menu.tsx. This section covers 12 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Dropdown Menu Primitives (12 nodes, 14 edges)
+    src_components_ui_dropdown_menu_dropdownmenucont_315eb471("DropdownMenuContent()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenuitem_55de1dab("DropdownMenuItem()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenutrig_028e0bcf("DropdownMenuTrigger()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_usedropdownmenu_04ad248e("useDropdownMenu()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenu_e8880686("DropdownMenu()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenucont_ed8d3d7f("DropdownMenuContentProps<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenucont_6bc430cb("DropdownMenuContext<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenucont_7e127b78("DropdownMenuContextValue<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenulabe_07cec4b5("DropdownMenuLabel()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenusepa_4b944baa("DropdownMenuSeparator()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_4b551b40("dropdown-menu.tsx")
+    src_components_ui_dropdown_menu_dropdownmenu_han_23db8c27("handleClickOutside()<br/><small>components/ui/dropdown-menu.tsx</small>")
+    src_components_ui_dropdown_menu_dropdownmenucont_315eb471 -->|calls| src_components_ui_dropdown_menu_usedropdownmenu_04ad248e
+    src_components_ui_dropdown_menu_dropdownmenuitem_55de1dab -->|calls| src_components_ui_dropdown_menu_usedropdownmenu_04ad248e
+    src_components_ui_dropdown_menu_dropdownmenutrig_028e0bcf -->|calls| src_components_ui_dropdown_menu_usedropdownmenu_04ad248e
+    class src_components_ui_dropdown_menu_dropdownmenucont_315eb471 ui;
+    class src_components_ui_dropdown_menu_dropdownmenuitem_55de1dab ui;
+    class src_components_ui_dropdown_menu_dropdownmenutrig_028e0bcf ui;
+    class src_components_ui_dropdown_menu_usedropdownmenu_04ad248e ui;
+    class src_components_ui_dropdown_menu_dropdownmenu_e8880686 ui;
+    class src_components_ui_dropdown_menu_dropdownmenucont_ed8d3d7f ui;
+    class src_components_ui_dropdown_menu_dropdownmenucont_6bc430cb ui;
+    class src_components_ui_dropdown_menu_dropdownmenucont_7e127b78 ui;
+    class src_components_ui_dropdown_menu_dropdownmenulabe_07cec4b5 ui;
+    class src_components_ui_dropdown_menu_dropdownmenusepa_4b944baa ui;
+    class src_components_ui_dropdown_menu_4b551b40 ui;
+    class src_components_ui_dropdown_menu_dropdownmenu_han_23db8c27 entry;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>DropdownMenuContentProps</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DropdownMenuContentProps node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>DropdownMenuContextValue</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DropdownMenuContextValue node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>DropdownMenu()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>handleClickOutside()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td>DropdownMenu() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>handleClickOutside()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-cmd">Entry</span></td>
+  <td><code>DropdownMenu()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>handleClickOutside() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>DropdownMenuContent()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useDropdownMenu()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td>DropdownMenuContent() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>DropdownMenuItem()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useDropdownMenu()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td>DropdownMenuItem() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>DropdownMenuLabel()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>DropdownMenuLabel() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>DropdownMenuSeparator()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>DropdownMenuSeparator() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>DropdownMenuTrigger()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useDropdownMenu()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td>DropdownMenuTrigger() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>useDropdownMenu()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>DropdownMenuContent()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small><br><code>DropdownMenuItem()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small><br><code>DropdownMenuTrigger()</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>useDropdownMenu() node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>dropdown-menu.tsx</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>cn.ts</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in components/ui/dropdown-menu.tsx.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>DropdownMenuContext</code><br><small style="color:var(--muted)">components/ui/dropdown-menu.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>DropdownMenuContext node in components/ui/dropdown-menu.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/ui/dropdown-menu.tsx</code></td><td>12 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x10, calls x3, indirect call x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 9. Tabs Interface Primitives ====== -->
+<h2 id="tabs-interface-primitives">9. Tabs Interface Primitives</h2>
+<p>Tabs Interface Primitives groups implementation around tabstsx, components, tabscontentprops, tabscontextvalue, mostly in components/ui/tabs.tsx. This section covers 11 nodes and 12 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Tabs Interface Primitives (11 nodes, 12 edges)
+    src_components_ui_tabs_tabscontent_7bf8e504("TabsContent<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabstrigger_37cf9039("TabsTrigger<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_usetabs_5d4b5b9c("useTabs()<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabs_476f731e("Tabs()<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabscontentprops_a10035e3("TabsContentProps<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabscontext_3b293c86("TabsContext<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabscontextvalue_1079835a("TabsContextValue<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabslist_e4a73f6c("TabsList<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabsprops_3fce20b8("TabsProps<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_tabstriggerprops_a468745c("TabsTriggerProps<br/><small>components/ui/tabs.tsx</small>")
+    src_components_ui_tabs_14b9f2d3("tabs.tsx")
+    src_components_ui_tabs_tabscontent_7bf8e504 -->|calls| src_components_ui_tabs_usetabs_5d4b5b9c
+    src_components_ui_tabs_tabstrigger_37cf9039 -->|calls| src_components_ui_tabs_usetabs_5d4b5b9c
+    class src_components_ui_tabs_tabscontent_7bf8e504 ui;
+    class src_components_ui_tabs_tabstrigger_37cf9039 ui;
+    class src_components_ui_tabs_usetabs_5d4b5b9c ui;
+    class src_components_ui_tabs_tabs_476f731e ui;
+    class src_components_ui_tabs_tabscontentprops_a10035e3 ui;
+    class src_components_ui_tabs_tabscontext_3b293c86 ui;
+    class src_components_ui_tabs_tabscontextvalue_1079835a ui;
+    class src_components_ui_tabs_tabslist_e4a73f6c ui;
+    class src_components_ui_tabs_tabsprops_3fce20b8 ui;
+    class src_components_ui_tabs_tabstriggerprops_a468745c ui;
+    class src_components_ui_tabs_14b9f2d3 ui;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>TabsContentProps</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TabsContentProps node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>TabsContextValue</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TabsContextValue node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>TabsProps</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TabsProps node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>TabsTriggerProps</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TabsTriggerProps node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>Tabs()</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ui-components.test.tsx</code><br><small style="color:var(--muted)">tests/unit/ui-components.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>Tabs() node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>useTabs()</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>TabsContent</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small><br><code>TabsTrigger</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>useTabs() node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>tabs.tsx</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ui-components.test.tsx</code><br><small style="color:var(--muted)">tests/unit/ui-components.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>cn.ts</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>TabsContent</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ui-components.test.tsx</code><br><small style="color:var(--muted)">tests/unit/ui-components.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useTabs()</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td>TabsContent node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>TabsContext</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>TabsContext node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>TabsList</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ui-components.test.tsx</code><br><small style="color:var(--muted)">tests/unit/ui-components.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small></td>
+  <td>TabsList node in components/ui/tabs.tsx.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>TabsTrigger</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ui-components.test.tsx</code><br><small style="color:var(--muted)">tests/unit/ui-components.test.tsx</small></td>
+  <td><code>cn()</code><br><small style="color:var(--muted)">src/lib/cn.ts</small><br><code>useTabs()</code><br><small style="color:var(--muted)">components/ui/tabs.tsx</small></td>
+  <td>TabsTrigger node in components/ui/tabs.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/ui/tabs.tsx</code></td><td>11 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x10, calls x2. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 10. React Error Boundary ====== -->
+<h2 id="react-error-boundary">10. React Error Boundary</h2>
+<p>React Error Boundary groups implementation around errorboundarytsx, components, layout, errorboundary, mostly in components/layout/ErrorBoundary.tsx. This section covers 9 nodes and 8 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: React Error Boundary (9 nodes, 8 edges)
+    src_components_layout_errorboundary_errorboundar_6736ffe8("ErrorBoundary<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_errorboundar_ab38c152("constructor()<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_errorboundar_6ee7c5c7("getDerivedStateFromError()<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_errorboundar_317015a4("componentDidCatch()<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_errorboundar_e208f2e5("handleReset()<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_errorboundar_d17dc250("render()<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_eae39e92("ErrorBoundary.tsx")
+    src_components_layout_errorboundary_props_350e9c92("Props<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_state_be79a733("State<br/><small>components/layout/ErrorBoundary.tsx</small>")
+    src_components_layout_errorboundary_errorboundar_6736ffe8 -->|method| src_components_layout_errorboundary_errorboundar_ab38c152
+    src_components_layout_errorboundary_errorboundar_6736ffe8 -->|method| src_components_layout_errorboundary_errorboundar_6ee7c5c7
+    src_components_layout_errorboundary_errorboundar_6736ffe8 -->|method| src_components_layout_errorboundary_errorboundar_317015a4
+    src_components_layout_errorboundary_errorboundar_6736ffe8 -->|method| src_components_layout_errorboundary_errorboundar_e208f2e5
+    src_components_layout_errorboundary_errorboundar_6736ffe8 -->|method| src_components_layout_errorboundary_errorboundar_d17dc250
+    class src_components_layout_errorboundary_errorboundar_6736ffe8 ui;
+    class src_components_layout_errorboundary_errorboundar_ab38c152 ui;
+    class src_components_layout_errorboundary_errorboundar_6ee7c5c7 ui;
+    class src_components_layout_errorboundary_errorboundar_317015a4 ui;
+    class src_components_layout_errorboundary_errorboundar_e208f2e5 ui;
+    class src_components_layout_errorboundary_errorboundar_d17dc250 ui;
+    class src_components_layout_errorboundary_eae39e92 ui;
+    class src_components_layout_errorboundary_props_350e9c92 ui;
+    class src_components_layout_errorboundary_state_be79a733 ui;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AppShell()</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small><br><code>AppShell.tsx</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small></td>
+  <td><code>componentDidCatch()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small><br><code>constructor()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small><br><code>getDerivedStateFromError()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small><br>+2 more</td>
+  <td>ErrorBoundary node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>Props</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Props node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>State</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>State node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>.componentDidCatch()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>.componentDidCatch() node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>.constructor()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>.constructor() node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>.getDerivedStateFromError()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>.getDerivedStateFromError() node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>.handleReset()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>.handleReset() node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>.render()</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>ErrorBoundary</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>.render() node in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>ErrorBoundary.tsx</code><br><small style="color:var(--muted)">components/layout/ErrorBoundary.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>AppShell.tsx</code><br><small style="color:var(--muted)">components/layout/AppShell.tsx</small></td>
+  <td><code>lucide-react</code><br><small style="color:var(--muted)">package.json</small><br><code>react</code><br><small style="color:var(--muted)">package.json</small></td>
+  <td>Module file in components/layout/ErrorBoundary.tsx.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>components/layout/ErrorBoundary.tsx</code></td><td>9 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: method x5, contains x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 11. Vite Environment Typings ====== -->
+<h2 id="vite-environment-typings">11. Vite Environment Typings</h2>
+<p>Vite Environment Typings groups implementation around vite, envdts, importmeta, importmetaenv, mostly in src/vite-env.d.ts. This section covers 3 nodes and 2 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Vite Environment Typings (3 nodes, 2 edges)
+    src_vite_env_d_695f3f8f("vite-env.d.ts")
+    src_vite_env_d_importmetaenv_fe59be30("ImportMetaEnv<br/><small>src/vite-env.d.ts</small>")
+    src_vite_env_d_importmeta_1aadf3e7("ImportMeta<br/><small>src/vite-env.d.ts</small>")
+    src_vite_env_d_695f3f8f -->|contains| src_vite_env_d_importmetaenv_fe59be30
+    src_vite_env_d_695f3f8f -->|contains| src_vite_env_d_importmeta_1aadf3e7
+    class src_vite_env_d_695f3f8f module;
+    class src_vite_env_d_importmetaenv_fe59be30 klass;
+    class src_vite_env_d_importmeta_1aadf3e7 klass;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>ImportMeta</code><br><small style="color:var(--muted)">src/vite-env.d.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ImportMeta node in src/vite-env.d.ts.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>ImportMetaEnv</code><br><small style="color:var(--muted)">src/vite-env.d.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>ImportMetaEnv node in src/vite-env.d.ts.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>vite-env.d.ts</code><br><small style="color:var(--muted)">src/vite-env.d.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in src/vite-env.d.ts.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>src/vite-env.d.ts</code></td><td>3 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x2. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 12. Tailwind CSS Configuration ====== -->
+<h2 id="tailwind-css-configuration">12. Tailwind CSS Configuration</h2>
+<p>Tailwind CSS Configuration groups implementation around tailwindcss, tailwindconfigts, mostly in tailwindcss, tailwind.config.ts. This section covers 2 nodes and 1 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Tailwind CSS Configuration (2 nodes, 1 edges)
+    tailwind_config_2024816e("tailwind.config.ts")
+    tailwindcss_34a67857("tailwindcss")
+    tailwind_config_2024816e -->|dynamic import| tailwindcss_34a67857
+    class tailwind_config_2024816e module;
+    class tailwindcss_34a67857 module;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>tailwindcss</code><br><small style="color:var(--muted)">tailwindcss</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>tailwindcss node in tailwindcss.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>tailwind.config.ts</code><br><small style="color:var(--muted)">tailwind.config.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Module file in tailwind.config.ts.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>tailwind.config.ts</code></td><td>1 nodes</td></tr>
+<tr><td><code>tailwindcss</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: dynamic import x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 13. Terminal Dark Mode Tokens ====== -->
+<h2 id="terminal-dark-mode-tokens">13. Terminal Dark Mode Tokens</h2>
+<p>Terminal Dark Mode Tokens groups implementation around design, terminal, dark, mode, mostly in docs/01-PRD-AND-DESIGN-SYSTEM.md. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Terminal Dark Mode Tokens (1 nodes, 0 edges)
+    docs_01_prd_and_design_system_color_palette_e0defc72("Terminal Dark-Mode Design Tokens<br/><small>docs/01-PRD-AND-DESIGN-SYSTEM.md</small>")
+    class docs_01_prd_and_design_system_color_palette_e0defc72 klass;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>Terminal Dark-Mode Design Tokens</code><br><small style="color:var(--muted)">docs/01-PRD-AND-DESIGN-SYSTEM.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Terminal Dark-Mode Design Tokens node in docs/01-PRD-AND-DESIGN-SYSTEM.md.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>docs/01-PRD-AND-DESIGN-SYSTEM.md</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 14. Matte Dark Mode Tokens ====== -->
+<h2 id="matte-dark-mode-tokens">14. Matte Dark Mode Tokens</h2>
+<p>Matte Dark Mode Tokens groups implementation around matte, dark, mode, visual, mostly in docs/06-DASHBOARD-UI-REVAMP.md. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Matte Dark Mode Tokens (1 nodes, 0 edges)
+    docs_06_dashboard_ui_revamp_tokens_28be9ba5("Matte Dark Mode Visual Tokens<br/><small>docs/06-DASHBOARD-UI-REVAMP.md</small>")
+    class docs_06_dashboard_ui_revamp_tokens_28be9ba5 klass;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>Matte Dark Mode Visual Tokens</code><br><small style="color:var(--muted)">docs/06-DASHBOARD-UI-REVAMP.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Matte Dark Mode Visual Tokens node in docs/06-DASHBOARD-UI-REVAMP.md.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>docs/06-DASHBOARD-UI-REVAMP.md</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 15. ESLint Configuration ====== -->
+<h2 id="eslint-configuration">15. ESLint Configuration</h2>
+<p>ESLint Configuration groups implementation around eslintrccjs, mostly in .eslintrc.cjs. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: ESLint Configuration (1 nodes, 0 edges)
+    eslintrc_4562c36a(".eslintrc.cjs")
+    class eslintrc_4562c36a function;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>.eslintrc.cjs</code><br><small style="color:var(--muted)">.eslintrc.cjs</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>.eslintrc.cjs node in .eslintrc.cjs.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>.eslintrc.cjs</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 16. Other ====== -->
+<h2 id="other">16. Other</h2>
+<p>Other groups implementation around postcssconfigjs, mostly in postcss.config.js. This section covers 1 nodes and 0 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Other (1 nodes, 0 edges)
+    postcss_config_bfe60bb8("postcss.config.js")
+    class postcss_config_bfe60bb8 module;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>postcss.config.js</code><br><small style="color:var(--muted)">postcss.config.js</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Reads, resolves, or persists project configuration.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>postcss.config.js</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: No high-confidence call edges detected. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<h2 id="hyperedges">Group Relationships (Hyperedges)</h2>
+<div class="grid">
+
+  <div class="card">
+    <h4>Dashboard Bento Analytics &amp; Shell Architecture</h4>
+    <p><code>participate_in</code> — 4 participants</p>
+    <ul>
+      <li><code>src_pages_dashboardpage_dashboardpage</code></li>
+      <li><code>src_components_dashboard_kpibentogrid_kpibentogrid</code></li>
+      <li><code>src_components_dashboard_equitycurvechart_equitycurvechart</code></li>
+      <li><code>docs_06_dashboard_ui_revamp_spec</code></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Financial Calculation &amp; Invalidation Loop</h4>
+    <p><code>participate_in</code> — 4 participants</p>
+    <ul>
+      <li><code>src_lib_math</code></li>
+      <li><code>src_hooks_usetrades_usetrades</code></li>
+      <li><code>src_components_dashboard_kpibentogrid_kpibentogrid</code></li>
+      <li><code>docs_02_architecture_and_dataflow_calculation_pipeline</code></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Landing Page Motion UI Pipeline</h4>
+    <p><code>participate_in</code> — 5 participants</p>
+    <ul>
+      <li><code>src_pages_landingpage_landingpage</code></li>
+      <li><code>src_components_landing_herosection_herosection</code></li>
+      <li><code>src_components_ui_aceternity_spotlight_spotlight</code></li>
+      <li><code>src_components_ui_aceternity_containerscroll_containerscroll</code></li>
+      <li><code>docs_07_landing_page_specs_spec</code></li>
+    </ul>
+  </div>
+</div>
+<hr>
+<h2 id="stats">Project Statistics</h2>
+
+<div class="grid">
+  <div class="card">
+    <h4>Graph</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>Nodes</td><td>596</td></tr>
+      <tr><td>Edges</td><td>1561</td></tr>
+      <tr><td>Hyperedges</td><td>3</td></tr>
+      <tr><td>Communities</td><td>30</td></tr>
+      <tr><td>Documented Sections</td><td>15</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Edge Confidence</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>EXTRACTED</td><td>1549</td></tr>
+      <tr><td>INFERRED</td><td>12</td></tr>
+      <tr><td>AMBIGUOUS</td><td>0</td></tr>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
+  <p>Quantyx — Architecture Documentation</p>
+  <p>Generated: 2026-10-22 15:37 UTC · graphify callflow-html</p>
+</div>
+
+</div><!-- .container -->
+
+<script>
+(function () {
+  const mermaidConfig = {
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    flowchart: { htmlLabels: true, useMaxWidth: true },
+    themeVariables: {
+      primaryColor: '#1e293b',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#38bdf8',
+      secondaryColor: '#0f172a',
+      tertiaryColor: '#334155',
+      lineColor: '#64748b',
+      textColor: '#e2e8f0',
+    }
+  };
+
+  mermaid.initialize(mermaidConfig);
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function enhanceMermaidDiagrams() {
+    document.querySelectorAll('.mermaid').forEach((container) => {
+      if (container.dataset.zoomReady === 'true') return;
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+
+      container.dataset.zoomReady = 'true';
+      container.classList.add('is-enhanced');
+
+      const viewport = document.createElement('div');
+      viewport.className = 'mermaid-viewport';
+      svg.parentNode.insertBefore(viewport, svg);
+      viewport.appendChild(svg);
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'mermaid-toolbar';
+      toolbar.innerHTML = [
+        '<button type="button" data-action="zoom-out" title="Zoom out">-</button>',
+        '<span class="zoom-level" data-role="level">100%</span>',
+        '<button type="button" data-action="zoom-in" title="Zoom in">+</button>',
+        '<button type="button" data-action="fit" title="Fit width">Fit</button>',
+        '<button type="button" data-action="reset" title="Reset view">Reset</button>'
+      ].join('');
+      container.insertBefore(toolbar, viewport);
+
+      const state = { scale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+      const level = toolbar.querySelector('[data-role="level"]');
+
+      function applyTransform() {
+        svg.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        level.textContent = `${Math.round(state.scale * 100)}%`;
+      }
+
+      function zoomBy(delta) {
+        state.scale = clamp(state.scale + delta, 0.25, 3);
+        applyTransform();
+      }
+
+      function reset() {
+        state.scale = 1;
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      function fitWidth() {
+        const rawWidth = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
+          ? svg.viewBox.baseVal.width
+          : svg.getBoundingClientRect().width / state.scale;
+        if (!rawWidth) {
+          reset();
+          return;
+        }
+        state.scale = clamp((viewport.clientWidth - 48) / rawWidth, 0.25, 1.4);
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      toolbar.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === 'zoom-in') zoomBy(0.15);
+        if (action === 'zoom-out') zoomBy(-0.15);
+        if (action === 'fit') fitWidth();
+        if (action === 'reset') reset();
+      });
+
+      viewport.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        zoomBy(event.deltaY < 0 ? 0.1 : -0.1);
+      }, { passive: false });
+
+      viewport.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) return;
+        state.dragging = true;
+        state.startX = event.clientX;
+        state.startY = event.clientY;
+        state.originX = state.x;
+        state.originY = state.y;
+        viewport.classList.add('is-dragging');
+        viewport.setPointerCapture(event.pointerId);
+      });
+
+      viewport.addEventListener('pointermove', (event) => {
+        if (!state.dragging) return;
+        state.x = state.originX + event.clientX - state.startX;
+        state.y = state.originY + event.clientY - state.startY;
+        applyTransform();
+      });
+
+      function endDrag(event) {
+        if (!state.dragging) return;
+        state.dragging = false;
+        viewport.classList.remove('is-dragging');
+        if (viewport.hasPointerCapture(event.pointerId)) {
+          viewport.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      viewport.addEventListener('pointerup', endDrag);
+      viewport.addEventListener('pointercancel', endDrag);
+      applyTransform();
+    });
+  }
+
+  function renderMermaid() {
+    const result = mermaid.run
+      ? mermaid.run({ querySelector: '.mermaid' })
+      : Promise.resolve();
+    Promise.resolve(result)
+      .then(enhanceMermaidDiagrams)
+      .catch((error) => {
+        console.error('Mermaid render failed:', error);
+        enhanceMermaidDiagrams();
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMermaid);
+  } else {
+    renderMermaid();
+  }
+})();
+</script>
+
+</body>
+</html>

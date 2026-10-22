@@ -25,6 +25,8 @@ const darkAppearance = {
     fontFamily: 'Inter, system-ui, sans-serif',
   },
   elements: {
+    modalBackdrop: 'fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto',
+    modalContent: 'm-auto',
     card: 'bg-[#141414] border border-[#262626] shadow-2xl',
     headerTitle: 'text-[#F4F4F5] font-semibold text-sm',
     headerSubtitle: 'text-[#A1A1AA] text-xs',

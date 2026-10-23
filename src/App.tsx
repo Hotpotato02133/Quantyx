@@ -10,13 +10,21 @@ import UsersPage from '@/pages/UsersPage'
 import SignInPage from '@/pages/SignInPage'
 import SignUpPage from '@/pages/SignUpPage'
 import LandingPage from '@/pages/LandingPage'
+import FeaturesPage from '@/pages/FeaturesPage'
+import PublicAnalyticsPage from '@/pages/PublicAnalyticsPage'
+import PublicPlaybooksPage from '@/pages/PublicPlaybooksPage'
+import FaqPage from '@/pages/FaqPage'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Marketing Landing Page */}
+        {/* Public Marketing Pages */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/analytics" element={<PublicAnalyticsPage />} />
+        <Route path="/playbooks" element={<PublicPlaybooksPage />} />
+        <Route path="/faq" element={<FaqPage />} />
 
         {/* Public Authentication Routes */}
         <Route path="/sign-in/*" element={<SignInPage />} />
@@ -58,7 +66,7 @@ export default function App() {
           }
         />
         <Route
-          path="/analytics"
+          path="/app/analytics"
           element={
             <ProtectedRoute>
               <AnalyticsPage />
@@ -66,10 +74,18 @@ export default function App() {
           }
         />
         <Route
-          path="/playbooks"
+          path="/app/playbooks"
           element={
             <ProtectedRoute>
               <PlaybooksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <Navigate to="/dashboard" replace />
             </ProtectedRoute>
           }
         />

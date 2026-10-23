@@ -142,12 +142,8 @@ export function Footer() {
 
         {/* Right: Quick Links */}
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 cursor-pointer">
-          <Link to="/dashboard" className="hover:text-zinc-300 transition-colors cursor-pointer">
-            Dashboard
-          </Link>
-          <span>•</span>
-          <Link to="/journal" className="hover:text-zinc-300 transition-colors cursor-pointer">
-            Trade Journal
+          <Link to="/features" className="hover:text-zinc-300 transition-colors cursor-pointer">
+            Features
           </Link>
           <span>•</span>
           <Link to="/analytics" className="hover:text-zinc-300 transition-colors cursor-pointer">
@@ -158,13 +154,13 @@ export function Footer() {
             Playbooks
           </Link>
           <span>•</span>
-          <a href="#faq" className="hover:text-zinc-300 transition-colors cursor-pointer">
-            Privacy
-          </a>
+          <Link to="/faq" className="hover:text-zinc-300 transition-colors cursor-pointer">
+            FAQ
+          </Link>
           <span>•</span>
-          <a href="#faq" className="hover:text-zinc-300 transition-colors cursor-pointer">
-            Terms
-          </a>
+          <Link to="/dashboard" className="hover:text-zinc-300 transition-colors cursor-pointer">
+            Dashboard
+          </Link>
         </div>
       </div>
     </footer>

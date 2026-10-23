@@ -33,8 +33,8 @@ export function Sidebar() {
     { to: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
     { to: '/journal', icon: BookOpen, label: 'Trade Journal' },
     { to: '/calendar', icon: Calendar, label: 'Calendar' },
-    { to: '/analytics', icon: BarChart2, label: 'Analytics & Reports' },
-    { to: '/playbooks', icon: GitBranch, label: 'Workflows & Playbooks' },
+    { to: '/app/analytics', icon: BarChart2, label: 'Analytics & Reports' },
+    { to: '/app/playbooks', icon: GitBranch, label: 'Workflows & Playbooks' },
     ...(canManageUsers ? [{ to: '/users', icon: Users, label: 'Users & Roles' }] : []),
   ]
 

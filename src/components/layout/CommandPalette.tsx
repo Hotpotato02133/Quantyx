@@ -455,26 +455,26 @@ export function CommandPalette() {
                 value="nav-analytics go to analytics performance edge"
                 onSelect={() => {
                   setCommandPaletteOpen(false)
-                  navigate('/analytics')
+                  navigate('/app/analytics')
                 }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-[#A1A1AA] hover:bg-white/[0.07] hover:text-[#F4F4F5] data-[selected=true]:bg-white/[0.07] data-[selected=true]:text-[#F4F4F5] transition-colors cursor-pointer"
               >
                 <BarChart3 className="h-4 w-4 text-[#A1A1AA] shrink-0" />
                 <span className="flex-1 font-medium">Performance Analytics</span>
-                <span className="text-[10px] font-mono text-[#525252]">/analytics</span>
+                <span className="text-[10px] font-mono text-[#525252]">/app/analytics</span>
               </Command.Item>
 
               <Command.Item
                 value="nav-playbooks go to playbooks strategies setups"
                 onSelect={() => {
                   setCommandPaletteOpen(false)
-                  navigate('/playbooks')
+                  navigate('/app/playbooks')
                 }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-[#A1A1AA] hover:bg-white/[0.07] hover:text-[#F4F4F5] data-[selected=true]:bg-white/[0.07] data-[selected=true]:text-[#F4F4F5] transition-colors cursor-pointer"
               >
                 <BookMarked className="h-4 w-4 text-[#A1A1AA] shrink-0" />
                 <span className="flex-1 font-medium">Playbooks & Strategies</span>
-                <span className="text-[10px] font-mono text-[#525252]">/playbooks</span>
+                <span className="text-[10px] font-mono text-[#525252]">/app/playbooks</span>
               </Command.Item>
             </Command.Group>
 

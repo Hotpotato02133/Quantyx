@@ -1,19 +1,21 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/clerk-react'
 import { TrendingUp, Menu, X, ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/cn'
 
 const HAS_CLERK = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)
 
 const NAV_LINKS = [
-  { label: 'Features', href: '#features' },
-  { label: 'Analytics', href: '#analytics' },
-  { label: 'Playbooks', href: '#playbooks' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Features', href: '/features' },
+  { label: 'Analytics', href: '/analytics' },
+  { label: 'Playbooks', href: '/playbooks' },
+  { label: 'FAQ', href: '/faq' },
 ]
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const location = useLocation()
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 px-4 sm:px-6">
@@ -31,16 +33,24 @@ export function Navbar() {
         </Link>
 
         {/* Center: Desktop Navigation Links */}
-        <div className="hidden md:flex items-center gap-6">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
-            >
-              {link.label}
-            </a>
-          ))}
+        <div className="hidden md:flex items-center gap-2">
+          {NAV_LINKS.map((link) => {
+            const isActive = location.pathname === link.href
+            return (
+              <Link
+                key={link.label}
+                to={link.href}
+                className={cn(
+                  'text-xs font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer',
+                  isActive
+                    ? 'text-white bg-white/[0.1] font-semibold shadow-sm'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
+                )}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
         </div>
 
         {/* Right: Smart Auth Aware CTAs */}
@@ -100,16 +110,24 @@ export function Navbar() {
       {/* Mobile Dropdown Panel */}
       {mobileMenuOpen && (
         <div className="md:hidden max-w-5xl mx-auto mt-2 p-4 rounded-2xl bg-[#141414]/95 backdrop-blur-2xl border border-white/[0.08] shadow-2xl flex flex-col gap-3">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-medium text-zinc-300 hover:text-white py-2 px-3 rounded-lg hover:bg-white/[0.05] transition-colors cursor-pointer"
-            >
-              {link.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = location.pathname === link.href
+            return (
+              <Link
+                key={link.label}
+                to={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  'text-sm font-medium py-2 px-3 rounded-lg transition-colors cursor-pointer',
+                  isActive
+                    ? 'text-white bg-white/[0.1] font-semibold'
+                    : 'text-zinc-300 hover:text-white hover:bg-white/[0.05]'
+                )}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
           <div className="pt-3 border-t border-white/[0.08] flex flex-col gap-2">
             {HAS_CLERK ? (
               <>
